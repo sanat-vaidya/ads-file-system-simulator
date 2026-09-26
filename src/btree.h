@@ -47,5 +47,6 @@ void btree_insert(BTree *t, const char *key, int val);  // key must be new, at m
 int btree_size(BTree *t);
 int btree_height(BTree *t);
 int btree_list(BTree *t, int vals[]);   // values in key order, returns how many
+bool btree_check(BTree *t);             // verifies all B-tree rules (used by tests)
 
 #endif

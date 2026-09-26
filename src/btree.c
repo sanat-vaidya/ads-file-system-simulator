@@ -141,3 +141,42 @@ void btree_insert(BTree *t, const char *key, int val) {
     insert_non_full(t->root, key, val);
     t->count++;
 }
+
+// ---------------- check ----------------
+
+static bool check_node(BTreeNode *x, bool is_root, int depth, int *leaf_depth) {
+    if (x->n > MAX_KEYS) return false;
+    if (!is_root && x->n < MIN_KEYS) return false;
+
+    if (x->leaf) {
+        if (*leaf_depth == -1) *leaf_depth = depth;
+        return depth == *leaf_depth;   // all leaves at the same depth
+    }
+    for (int i = 0; i <= x->n; i++) {
+        if (!check_node(x->child[i], false, depth + 1, leaf_depth)) return false;
+    }
+    return true;
+}
+
+// in-order walk: every key must be bigger than the one before it
+static bool check_order(BTreeNode *x, const char **prev, int *seen) {
+    for (int i = 0; i < x->n; i++) {
+        if (!x->leaf && !check_order(x->child[i], prev, seen)) return false;
+        if (*prev != NULL && strcmp(*prev, x->keys[i]) >= 0) return false;
+        *prev = x->keys[i];
+        (*seen)++;
+    }
+    if (!x->leaf) return check_order(x->child[x->n], prev, seen);
+    return true;
+}
+
+bool btree_check(BTree *t) {
+    if (!t->root->leaf && t->root->n == 0) return false;
+    int leaf_depth = -1;
+    if (!check_node(t->root, true, 0, &leaf_depth)) return false;
+
+    const char *prev = NULL;
+    int seen = 0;
+    if (!check_order(t->root, &prev, &seen)) return false;
+    return seen == t->count;
+}

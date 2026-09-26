@@ -1,2 +1,3 @@
 fs
+tests/btree_test
 *.o
