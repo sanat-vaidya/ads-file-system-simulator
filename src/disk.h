@@ -29,6 +29,13 @@ void disk_init(void);
 bool disk_is_used(int block);
 int disk_free_count(void);
 
+// FAT chains
+int disk_allocate(int count);
+void disk_free_chain(int first);
+void disk_link(int from, int to);
+int disk_last_block(int first);
+int disk_chain(int first, int out[]);   // fills out[] with the blocks, returns how many
+
 // number of blocks needed to hold this many bytes
 int blocks_for(int bytes);
 
