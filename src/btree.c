@@ -142,6 +142,133 @@ void btree_insert(BTree *t, const char *key, int val) {
     t->count++;
 }
 
+// ---------------- remove ----------------
+
+// Move a key from x->child[i-1] up into x, and x's separator down into x->child[i].
+static void borrow_from_left(BTreeNode *x, int i) {
+    BTreeNode *c = x->child[i];
+    BTreeNode *s = x->child[i - 1];
+
+    for (int j = c->n - 1; j >= 0; j--) copy_key(c, j + 1, c, j);
+    if (!c->leaf) {
+        for (int j = c->n; j >= 0; j--) c->child[j + 1] = c->child[j];
+    }
+
+    copy_key(c, 0, x, i - 1);
+    if (!c->leaf) c->child[0] = s->child[s->n];
+    copy_key(x, i - 1, s, s->n - 1);
+
+    c->n++;
+    s->n--;
+}
+
+// Move a key from x->child[i+1] up into x, and x's separator down into x->child[i].
+static void borrow_from_right(BTreeNode *x, int i) {
+    BTreeNode *c = x->child[i];
+    BTreeNode *s = x->child[i + 1];
+
+    copy_key(c, c->n, x, i);
+    if (!c->leaf) c->child[c->n + 1] = s->child[0];
+    copy_key(x, i, s, 0);
+
+    for (int j = 0; j < s->n - 1; j++) copy_key(s, j, s, j + 1);
+    if (!s->leaf) {
+        for (int j = 0; j < s->n; j++) s->child[j] = s->child[j + 1];
+    }
+
+    c->n++;
+    s->n--;
+}
+
+// Join x->child[i], the separator x->keys[i] and x->child[i+1] into one node.
+static void merge(BTreeNode *x, int i) {
+    BTreeNode *c = x->child[i];
+    BTreeNode *s = x->child[i + 1];
+
+    copy_key(c, c->n, x, i);
+    for (int j = 0; j < s->n; j++) copy_key(c, c->n + 1 + j, s, j);
+    if (!c->leaf) {
+        for (int j = 0; j <= s->n; j++) c->child[c->n + 1 + j] = s->child[j];
+    }
+
+    // close the gap in x
+    for (int j = i + 1; j < x->n; j++) copy_key(x, j - 1, x, j);
+    for (int j = i + 2; j <= x->n; j++) x->child[j - 1] = x->child[j];
+
+    c->n += s->n + 1;
+    x->n--;
+    free(s);   // its keys and children now belong to c
+}
+
+static void remove_from(BTreeNode *x, const char *key) {
+    int i = 0;
+    while (i < x->n && strcmp(x->keys[i], key) < 0) i++;
+
+    if (i < x->n && strcmp(x->keys[i], key) == 0) {
+        if (x->leaf) {
+            // case 1: key is in a leaf, just take it out
+            for (int j = i; j < x->n - 1; j++) copy_key(x, j, x, j + 1);
+            x->n--;
+        } else if (x->child[i]->n > MIN_KEYS) {
+            // case 2a: replace it with its predecessor (biggest key on the left)
+            BTreeNode *p = x->child[i];
+            while (!p->leaf) p = p->child[p->n];
+            char pred[NAME_SIZE];
+            strcpy(pred, p->keys[p->n - 1]);
+            copy_key(x, i, p, p->n - 1);
+            remove_from(x->child[i], pred);
+        } else if (x->child[i + 1]->n > MIN_KEYS) {
+            // case 2b: replace it with its successor (smallest key on the right)
+            BTreeNode *s = x->child[i + 1];
+            while (!s->leaf) s = s->child[0];
+            char succ[NAME_SIZE];
+            strcpy(succ, s->keys[0]);
+            copy_key(x, i, s, 0);
+            remove_from(x->child[i + 1], succ);
+        } else {
+            // case 2c: both children are minimal, merge them around the key
+            merge(x, i);
+            remove_from(x->child[i], key);
+        }
+        return;
+    }
+
+    if (x->leaf) return;   // not in the tree
+
+    // case 3: key is somewhere under x->child[i].
+    // Make sure that child has a spare key before going down.
+    if (x->child[i]->n == MIN_KEYS) {
+        if (i > 0 && x->child[i - 1]->n > MIN_KEYS) {
+            borrow_from_left(x, i);
+        } else if (i < x->n && x->child[i + 1]->n > MIN_KEYS) {
+            borrow_from_right(x, i);
+        } else if (i < x->n) {
+            merge(x, i);
+        } else {
+            merge(x, i - 1);   // last child: merge with the left sibling
+            i--;
+        }
+    }
+    remove_from(x->child[i], key);
+}
+
+bool btree_remove(BTree *t, const char *key) {
+    if (btree_find(t, key) == -1) return false;
+
+    char k[NAME_SIZE];   // own copy, in case key points into a node that moves
+    strcpy(k, key);
+    remove_from(t->root, k);
+    t->count--;
+
+    // root lost its last key: its only child becomes the new root
+    if (t->root->n == 0 && !t->root->leaf) {
+        BTreeNode *old = t->root;
+        t->root = t->root->child[0];
+        free(old);
+    }
+    return true;
+}
+
 // ---------------- check ----------------
 
 static bool check_node(BTreeNode *x, bool is_root, int depth, int *leaf_depth) {

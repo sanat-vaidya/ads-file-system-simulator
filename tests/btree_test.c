@@ -1,6 +1,6 @@
 // btree_test.c - random stress test for the B-tree
 //
-// Does thousands of random inserts, and after every step checks:
+// Does thousands of random inserts and removes, and after every step checks:
 //  - all B-tree rules hold (btree_check)
 //  - the contents match a simple reference: an array saying which keys are in
 
@@ -39,15 +39,21 @@ int main(void) {
 
     for (int step = 0; step < OPS; step++) {
         int k = rand() % POOL;
-        if (btree_find(t, names[k]) == -1) {
-            int v = k * 1000 + rand() % 1000;   // value also tells us the key
-            btree_insert(t, names[k], v);
-            present[k] = true;
-            value[k] = v;
+        if (rand() % 2 == 0) {
+            if (btree_find(t, names[k]) == -1) {
+                int v = k * 1000 + rand() % 1000;   // value also tells us the key
+                btree_insert(t, names[k], v);
+                present[k] = true;
+                value[k] = v;
+            }
+        } else {
+            bool removed = btree_remove(t, names[k]);
+            if (removed != present[k]) return fail(step, "remove returned the wrong result");
+            present[k] = false;
         }
 
         if (!btree_check(t)) return fail(step, "B-tree rules broken");
-        if (btree_find(t, names[k]) != value[k]) return fail(step, "find gave a wrong value");
+        if (present[k] && btree_find(t, names[k]) != value[k]) return fail(step, "find gave a wrong value");
 
         // in-order list must be exactly the present keys, in string order
         int n = btree_list(t, vals);
@@ -60,8 +66,17 @@ int main(void) {
         }
         if (j != n) return fail(step, "extra keys in the tree");
     }
+
+    // empty it completely
+    for (int i = 0; i < POOL; i++) {
+        if (present[i]) btree_remove(t, names[i]);
+    }
+    if (btree_size(t) != 0 || btree_height(t) != 1 || !btree_check(t)) {
+        printf("FAIL: tree not empty after removing everything\n");
+        return 1;
+    }
     btree_free(t);
 
-    printf("btree_test: %d random inserts OK\n", OPS);
+    printf("btree_test: %d random operations OK\n", OPS);
     return 0;
 }

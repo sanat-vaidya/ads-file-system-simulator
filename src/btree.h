@@ -43,6 +43,7 @@ void btree_free(BTree *t);   // does nothing for NULL
 
 int btree_find(BTree *t, const char *key);              // value, or -1 if missing
 void btree_insert(BTree *t, const char *key, int val);  // key must be new, at most MAX_NAME chars
+bool btree_remove(BTree *t, const char *key);           // false if missing
 
 int btree_size(BTree *t);
 int btree_height(BTree *t);
