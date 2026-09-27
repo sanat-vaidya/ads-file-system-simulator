@@ -36,6 +36,10 @@ void disk_link(int from, int to);
 int disk_last_block(int first);
 int disk_chain(int first, int out[]);   // fills out[] with the blocks, returns how many
 
+// data
+void disk_write_bytes(int first, int offset, const char *text, int len);
+void disk_read_bytes(int first, int size, char *out);   // out gets size bytes + '\0'
+
 // number of blocks needed to hold this many bytes
 int blocks_for(int bytes);
 

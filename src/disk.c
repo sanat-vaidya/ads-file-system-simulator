@@ -85,3 +85,36 @@ int disk_chain(int first, int out[]) {
     }
     return n;
 }
+
+// ---------------- data ----------------
+
+// Write len bytes of text into a chain, starting at byte `offset` of the file.
+// The chain must already have enough blocks.
+void disk_write_bytes(int first, int offset, const char *text, int len) {
+    if (len == 0) return;
+    int b = first;
+    for (int skip = offset / BLOCK_SIZE; skip > 0; skip--) b = fat[b];
+    int pos = offset % BLOCK_SIZE;
+    for (int i = 0; i < len; i++) {
+        if (pos == BLOCK_SIZE) {   // block full, follow the chain
+            b = fat[b];
+            pos = 0;
+        }
+        data[b][pos] = text[i];
+        pos++;
+    }
+}
+
+void disk_read_bytes(int first, int size, char *out) {
+    int b = first;
+    int pos = 0;
+    for (int i = 0; i < size; i++) {
+        if (pos == BLOCK_SIZE) {
+            b = fat[b];
+            pos = 0;
+        }
+        out[i] = data[b][pos];
+        pos++;
+    }
+    out[size] = '\0';
+}
