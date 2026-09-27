@@ -1,4 +1,5 @@
 #include "inode_table.h"
+#include "btree.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,6 +34,7 @@ Inode *table_find(int id) {
 }
 
 static void free_entry(HashNode *h) {
+    btree_free(h->inode->children);   // NULL for files, that is fine
     free(h->inode);
     free(h);
 }
