@@ -12,6 +12,7 @@ tests/btree_test: tests/btree_test.c src/btree.c src/btree.h
 
 test: fs tests/btree_test
 	./tests/btree_test
+	./tests/run.sh
 
 clean:
 	rm -f fs tests/btree_test

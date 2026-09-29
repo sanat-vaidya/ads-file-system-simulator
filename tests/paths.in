@@ -1,0 +1,32 @@
+# directories, cd, pwd and path resolution
+mkdir docs src
+mkdir docs/notes docs/old
+touch docs/readme.txt src/main.c
+ls
+ls docs
+ls docs/readme.txt
+cd docs
+pwd
+cd notes
+pwd
+# relative paths with ..
+cd ../old
+pwd
+cd ../..
+pwd
+# absolute paths, extra slashes, . and ..
+cd /docs/./notes/
+pwd
+ls ../../src
+cd //docs//old
+pwd
+# .. at the root stays at the root
+cd /docs
+cd
+pwd
+# errors
+cd nothere
+cd docs/readme.txt
+mkdir docs
+mkdir nothere/x
+ls nothere

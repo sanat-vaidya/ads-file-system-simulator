@@ -1,0 +1,51 @@
+# directories, cd, pwd and path resolution
+fs:/$ mkdir docs src
+fs:/$ mkdir docs/notes docs/old
+fs:/$ touch docs/readme.txt src/main.c
+fs:/$ ls
+docs/
+src/
+fs:/$ ls docs
+notes/
+old/
+readme.txt
+fs:/$ ls docs/readme.txt
+readme.txt
+fs:/$ cd docs
+fs:/docs$ pwd
+/docs
+fs:/docs$ cd notes
+fs:/docs/notes$ pwd
+/docs/notes
+# relative paths with ..
+fs:/docs/notes$ cd ../old
+fs:/docs/old$ pwd
+/docs/old
+fs:/docs/old$ cd ../..
+fs:/$ pwd
+/
+# absolute paths, extra slashes, . and ..
+fs:/$ cd /docs/./notes/
+fs:/docs/notes$ pwd
+/docs/notes
+fs:/docs/notes$ ls ../../src
+main.c
+fs:/docs/notes$ cd //docs//old
+fs:/docs/old$ pwd
+/docs/old
+# .. at the root stays at the root
+fs:/docs/old$ cd /docs
+fs:/docs$ cd
+fs:/$ pwd
+/
+# errors
+fs:/$ cd nothere
+error: no such directory: nothere
+fs:/$ cd docs/readme.txt
+error: not a directory: docs/readme.txt
+fs:/$ mkdir docs
+error: already exists: docs
+fs:/$ mkdir nothere/x
+error: no such directory: nothere/x
+fs:/$ ls nothere
+error: no such file or directory: nothere
