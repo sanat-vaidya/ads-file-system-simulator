@@ -275,6 +275,37 @@ void fs_write(const char *path, const char *text) {
     in->size = len;
 }
 
+// Adds text as a new line at the end of the file.
+void fs_append(const char *path, const char *text) {
+    int id = resolve(path);
+    if (id == -1) {
+        fs_write(path, text);   // new file: same as write
+        return;
+    }
+    Inode *in = table_find(id);
+    if (in->is_dir) {
+        error("is a directory", path);
+        return;
+    }
+
+    // read the old contents, add the new line, write it all back
+    char content[DISK_BYTES + LINE_SIZE + 2];
+    disk_read_bytes(in->first_block, in->size, content);
+    if (in->size > 0) strcat(content, "\n");
+    strcat(content, text);
+    int len = strlen(content);
+
+    int needed = blocks_for(len);
+    if (needed > disk_free_count() + blocks_for(in->size)) {
+        error("disk full", path);
+        return;
+    }
+    disk_free_chain(in->first_block);
+    in->first_block = disk_allocate(needed);
+    disk_write_bytes(in->first_block, 0, content, len);
+    in->size = len;
+}
+
 void fs_cat(const char *path) {
     int id = resolve(path);
     if (id == -1) {

@@ -61,6 +61,7 @@ static void print_help(void) {
         "  cd [path]              change directory (no path = /)\n"
         "  pwd                    print the current directory\n"
         "  write <file> <text>    replace a file's contents (creates it if needed)\n"
+        "  append <file> <text>   add a line to the end of a file\n"
         "  cat <file>             print a file\n"
         "other\n"
         "  help                   this list\n"
@@ -133,6 +134,9 @@ int main(void) {
         } else if (strcmp(cmd, "write") == 0) {
             if (n < 1) usage("write <file> <text>");
             else fs_write(args[1], text_after(line, 2));
+        } else if (strcmp(cmd, "append") == 0) {
+            if (n < 1) usage("append <file> <text>");
+            else fs_append(args[1], text_after(line, 2));
         } else if (strcmp(cmd, "cat") == 0) {
             if (n != 1) usage("cat <file>");
             else fs_cat(args[1]);
