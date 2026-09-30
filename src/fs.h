@@ -24,6 +24,10 @@ void fs_ls(const char *path);
 void fs_cd(const char *path);
 void fs_pwd(void);
 
+// storage
+void fs_write(const char *path, const char *text);
+void fs_cat(const char *path);
+
 void fs_cwd_path(char *out);   // out needs PATH_SIZE chars
 
 #endif

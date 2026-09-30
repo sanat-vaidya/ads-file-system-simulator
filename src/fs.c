@@ -244,3 +244,51 @@ void fs_pwd(void) {
     path_of(cwd, p);
     printf("%s\n", p);
 }
+
+// =====================================================================
+// storage commands
+// =====================================================================
+
+void fs_write(const char *path, const char *text) {
+    int len = strlen(text);
+    int needed = blocks_for(len);
+    int id = resolve(path);
+    if (id == -1) {
+        id = create(path, false);
+        if (id == -1) return;
+    }
+
+    Inode *in = table_find(id);
+    if (in->is_dir) {
+        error("is a directory", path);
+        return;
+    }
+    // the old blocks get freed first, so they count as available
+    if (needed > disk_free_count() + blocks_for(in->size)) {
+        error("disk full", path);
+        return;
+    }
+
+    disk_free_chain(in->first_block);
+    in->first_block = disk_allocate(needed);
+    disk_write_bytes(in->first_block, 0, text, len);
+    in->size = len;
+}
+
+void fs_cat(const char *path) {
+    int id = resolve(path);
+    if (id == -1) {
+        error("no such file", path);
+        return;
+    }
+    Inode *in = table_find(id);
+    if (in->is_dir) {
+        error("is a directory", path);
+        return;
+    }
+    if (in->size > 0) {
+        char content[DISK_BYTES + 1];
+        disk_read_bytes(in->first_block, in->size, content);
+        printf("%s\n", content);
+    }
+}
