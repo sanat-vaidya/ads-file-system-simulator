@@ -31,6 +31,7 @@ void table_remove(int id);
 
 int table_size(void);
 int table_bucket_of(int id);
+int table_all_ids(int out[]);   // fills out[] with every id, returns how many
 void table_free_all(void);
 
 #endif

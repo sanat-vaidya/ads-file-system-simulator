@@ -190,6 +190,17 @@ static int create(const char *path, bool is_dir) {
     return in->id;
 }
 
+static void print_chain(int first) {
+    if (first == FAT_END) {
+        printf("(no blocks)");
+        return;
+    }
+    int chain[NUM_BLOCKS];
+    int n = disk_chain(first, chain);
+    for (int i = 0; i < n; i++) printf("%d -> ", chain[i]);
+    printf("END");
+}
+
 // =====================================================================
 // namespace commands
 // =====================================================================
@@ -322,4 +333,46 @@ void fs_cat(const char *path) {
         disk_read_bytes(in->first_block, in->size, content);
         printf("%s\n", content);
     }
+}
+
+void fs_stat(const char *path) {
+    int id = resolve(path);
+    if (id == -1) {
+        error("no such file or directory", path);
+        return;
+    }
+    Inode *in = table_find(id);
+    char p[PATH_SIZE];
+
+    path_of(id, p);
+    printf("path:    %s\n", p);
+    printf("type:    %s\n", in->is_dir ? "directory" : "file");
+    printf("inode:   %d (hash bucket %d)\n", id, table_bucket_of(id));
+    path_of(in->parent_id, p);
+    printf("parent:  %d (%s)\n", in->parent_id, p);
+    if (in->is_dir) {
+        printf("entries: %d (B-tree height %d)\n", btree_size(in->children), btree_height(in->children));
+    } else {
+        printf("size:    %d bytes, %d blocks\n", in->size, blocks_for(in->size));
+        printf("blocks:  ");
+        print_chain(in->first_block);
+        printf("\n");
+    }
+}
+
+void fs_df(void) {
+    int used = NUM_BLOCKS - disk_free_count();
+    int stored = 0;
+    int ids[MAX_INODES];
+    int n = table_all_ids(ids);
+    for (int i = 0; i < n; i++) {
+        Inode *in = table_find(ids[i]);
+        if (!in->is_dir) stored += in->size;
+    }
+    printf("blocks: %d used, %d free, %d total (%d bytes each)\n",
+           used, disk_free_count(), NUM_BLOCKS, BLOCK_SIZE);
+    printf("bytes:  %d stored in %d bytes of blocks (%d unused in last blocks)\n",
+           stored, used * BLOCK_SIZE, used * BLOCK_SIZE - stored);
+    printf("inodes: %d used, %d free, %d total\n",
+           table_size(), MAX_INODES - table_size(), MAX_INODES);
 }

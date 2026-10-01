@@ -63,6 +63,9 @@ static void print_help(void) {
         "  write <file> <text>    replace a file's contents (creates it if needed)\n"
         "  append <file> <text>   add a line to the end of a file\n"
         "  cat <file>             print a file\n"
+        "  stat <path>            show an inode\n"
+        "inside the data structures\n"
+        "  df                     disk and inode usage\n"
         "other\n"
         "  help                   this list\n"
         "  exit                   quit\n");
@@ -140,6 +143,11 @@ int main(void) {
         } else if (strcmp(cmd, "cat") == 0) {
             if (n != 1) usage("cat <file>");
             else fs_cat(args[1]);
+        } else if (strcmp(cmd, "stat") == 0) {
+            if (n != 1) usage("stat <path>");
+            else fs_stat(args[1]);
+        } else if (strcmp(cmd, "df") == 0) {
+            fs_df();
         } else {
             printf("error: unknown command: %s (type 'help')\n", cmd);
         }
