@@ -36,6 +36,18 @@ static int split_words(char *line, char *words[]) {
     return n;
 }
 
+// The raw text after the first `skip` words.
+// text_after("write a.txt hello  world", 2) -> "hello  world"
+static const char *text_after(const char *line, int skip) {
+    int i = 0;
+    for (int w = 0; w < skip; w++) {
+        while (is_space(line[i])) i++;
+        while (line[i] != '\0' && !is_space(line[i])) i++;
+    }
+    while (is_space(line[i])) i++;
+    return line + i;
+}
+
 static void usage(const char *text) {
     printf("usage: %s\n", text);
 }
@@ -48,6 +60,12 @@ static void print_help(void) {
         "  ls [path]              list a directory (sorted by its B-tree)\n"
         "  cd [path]              change directory (no path = /)\n"
         "  pwd                    print the current directory\n"
+        "  write <file> <text>    replace a file's contents (creates it if needed)\n"
+        "  append <file> <text>   add a line to the end of a file\n"
+        "  cat <file>             print a file\n"
+        "  stat <path>            show an inode\n"
+        "inside the data structures\n"
+        "  df                     disk and inode usage\n"
         "other\n"
         "  help                   this list\n"
         "  exit                   quit\n");
@@ -116,6 +134,20 @@ int main(void) {
             else fs_cd(n == 0 ? "/" : args[1]);
         } else if (strcmp(cmd, "pwd") == 0) {
             fs_pwd();
+        } else if (strcmp(cmd, "write") == 0) {
+            if (n < 1) usage("write <file> <text>");
+            else fs_write(args[1], text_after(line, 2));
+        } else if (strcmp(cmd, "append") == 0) {
+            if (n < 1) usage("append <file> <text>");
+            else fs_append(args[1], text_after(line, 2));
+        } else if (strcmp(cmd, "cat") == 0) {
+            if (n != 1) usage("cat <file>");
+            else fs_cat(args[1]);
+        } else if (strcmp(cmd, "stat") == 0) {
+            if (n != 1) usage("stat <path>");
+            else fs_stat(args[1]);
+        } else if (strcmp(cmd, "df") == 0) {
+            fs_df();
         } else {
             printf("error: unknown command: %s (type 'help')\n", cmd);
         }

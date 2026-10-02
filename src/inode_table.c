@@ -68,3 +68,14 @@ void table_free_all(void) {
     }
     count = 0;
 }
+
+int table_all_ids(int out[]) {
+    int n = 0;
+    for (int b = 0; b < NUM_BUCKETS; b++) {
+        for (HashNode *h = buckets[b]; h != NULL; h = h->next) {
+            out[n] = h->key;
+            n++;
+        }
+    }
+    return n;
+}

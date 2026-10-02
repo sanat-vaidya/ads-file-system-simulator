@@ -1,0 +1,36 @@
+# write, cat, append, overwrite and the block chain
+# blocks are 32 bytes
+write a.txt hello
+cat a.txt
+# exactly one full block (32 chars)
+write b.txt abcdefghijklmnopqrstuvwxyz012345
+# 33 chars needs 2 blocks
+write c.txt abcdefghijklmnopqrstuvwxyz0123456
+# append fills the last block of a.txt, then links a new block
+append a.txt this line is long enough to spill over
+cat a.txt
+# append to a file whose last block is exactly full
+append b.txt x
+# overwrite: old blocks are freed, new ones taken from the lowest free
+write c.txt short
+cat c.txt
+# empty files have no blocks
+touch empty.txt
+cat empty.txt
+write c.txt
+append new.txt first line
+cat new.txt
+append new.txt second line
+cat new.txt
+stat a.txt
+stat empty.txt
+stat /
+df
+# errors
+cat nothere
+cat /
+write / hi
+mkdir d
+append d hi
+write nothere/x.txt hi
+write bad*name hi

@@ -1,0 +1,69 @@
+# write, cat, append, overwrite and the block chain
+# blocks are 32 bytes
+fs:/$ write a.txt hello
+fs:/$ cat a.txt
+hello
+# exactly one full block (32 chars)
+fs:/$ write b.txt abcdefghijklmnopqrstuvwxyz012345
+# 33 chars needs 2 blocks
+fs:/$ write c.txt abcdefghijklmnopqrstuvwxyz0123456
+# append fills the last block of a.txt, then links a new block
+fs:/$ append a.txt this line is long enough to spill over
+fs:/$ cat a.txt
+hello
+this line is long enough to spill over
+# append to a file whose last block is exactly full
+fs:/$ append b.txt x
+# overwrite: old blocks are freed, new ones taken from the lowest free
+fs:/$ write c.txt short
+fs:/$ cat c.txt
+short
+# empty files have no blocks
+fs:/$ touch empty.txt
+fs:/$ cat empty.txt
+fs:/$ write c.txt
+fs:/$ append new.txt first line
+fs:/$ cat new.txt
+first line
+fs:/$ append new.txt second line
+fs:/$ cat new.txt
+first line
+second line
+fs:/$ stat a.txt
+path:    /a.txt
+type:    file
+inode:   1 (hash bucket 1)
+parent:  0 (/)
+size:    44 bytes, 2 blocks
+blocks:  0 -> 4 -> END
+fs:/$ stat empty.txt
+path:    /empty.txt
+type:    file
+inode:   4 (hash bucket 4)
+parent:  0 (/)
+size:    0 bytes, 0 blocks
+blocks:  (no blocks)
+fs:/$ stat /
+path:    /
+type:    directory
+inode:   0 (hash bucket 0)
+parent:  0 (/)
+entries: 5 (B-tree height 2)
+fs:/$ df
+blocks: 5 used, 59 free, 64 total (32 bytes each)
+bytes:  100 stored in 160 bytes of blocks (60 unused in last blocks)
+inodes: 6 used, 122 free, 128 total
+# errors
+fs:/$ cat nothere
+error: no such file: nothere
+fs:/$ cat /
+error: is a directory: /
+fs:/$ write / hi
+error: is a directory: /
+fs:/$ mkdir d
+fs:/$ append d hi
+error: is a directory: d
+fs:/$ write nothere/x.txt hi
+error: no such directory: nothere/x.txt
+fs:/$ write bad*name hi
+error: invalid name: bad*name
