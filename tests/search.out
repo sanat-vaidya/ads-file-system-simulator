@@ -1,0 +1,46 @@
+# search (trie, whole system) vs find (BFS, one subtree)
+fs:/$ mkdir docs docs/reports docs/old src
+fs:/$ touch report.txt docs/report.txt docs/old/report.txt docs/reports/q1.txt
+fs:/$ touch src/rep.c src/main.c src/Readme.md
+# every name starting with "rep", sorted by name
+fs:/$ search rep
+/src/rep.c
+/report.txt
+/docs/report.txt
+/docs/old/report.txt
+/docs/reports
+fs:/$ search report
+/report.txt
+/docs/report.txt
+/docs/old/report.txt
+/docs/reports
+fs:/$ search reports
+/docs/reports
+fs:/$ search r
+/src/rep.c
+/report.txt
+/docs/report.txt
+/docs/old/report.txt
+/docs/reports
+# case-sensitive
+fs:/$ search R
+/src/Readme.md
+fs:/$ search xyz
+no matches
+fs:/$ search rep*
+no matches
+# errors
+fs:/$ search
+usage: search <prefix>
+# removing a file removes it from the trie
+fs:/$ search report
+/report.txt
+/docs/report.txt
+/docs/old/report.txt
+/docs/reports
+fs:/$ search rep
+/src/rep.c
+/report.txt
+/docs/report.txt
+/docs/old/report.txt
+/docs/reports
