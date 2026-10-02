@@ -64,6 +64,8 @@ static void print_help(void) {
         "  append <file> <text>   add a line to the end of a file\n"
         "  cat <file>             print a file\n"
         "  stat <path>            show an inode\n"
+        "search\n"
+        "  search <prefix>        names starting with prefix, anywhere (trie)\n"
         "inside the data structures\n"
         "  df                     disk and inode usage\n"
         "other\n"
@@ -146,6 +148,9 @@ int main(void) {
         } else if (strcmp(cmd, "stat") == 0) {
             if (n != 1) usage("stat <path>");
             else fs_stat(args[1]);
+        } else if (strcmp(cmd, "search") == 0) {
+            if (n != 1) usage("search <prefix>");
+            else fs_search(args[1]);
         } else if (strcmp(cmd, "df") == 0) {
             fs_df();
         } else {

@@ -23,6 +23,7 @@ void fs_touch(const char *path);
 void fs_ls(const char *path);
 void fs_cd(const char *path);
 void fs_pwd(void);
+void fs_search(const char *prefix);
 
 // storage
 void fs_write(const char *path, const char *text);
