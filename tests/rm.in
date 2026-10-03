@@ -1,0 +1,27 @@
+# rm frees names, inodes and disk blocks
+mkdir docs docs/old empty
+write docs/a.txt aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+write docs/old/b.txt bbbbbbbbbb
+write top.txt top
+df
+# remove one file
+rm top.txt
+ls
+# empty directory
+rm empty
+# non-empty directory needs -r
+rm docs
+rm -r docs
+df
+search a
+# freed blocks are reused, lowest number first
+write new.txt reuse
+# several at once
+touch x y z
+rm x z
+ls
+# errors
+rm /
+rm nothere
+rm
+rm -r

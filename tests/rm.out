@@ -1,0 +1,43 @@
+# rm frees names, inodes and disk blocks
+fs:/$ mkdir docs docs/old empty
+fs:/$ write docs/a.txt aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+fs:/$ write docs/old/b.txt bbbbbbbbbb
+fs:/$ write top.txt top
+fs:/$ df
+blocks: 4 used, 60 free, 64 total (32 bytes each)
+bytes:  55 stored in 128 bytes of blocks (73 unused in last blocks)
+inodes: 7 used, 121 free, 128 total
+# remove one file
+fs:/$ rm top.txt
+fs:/$ ls
+docs/
+empty/
+# empty directory
+fs:/$ rm empty
+# non-empty directory needs -r
+fs:/$ rm docs
+error: directory not empty (use rm -r): docs
+fs:/$ rm -r docs
+fs:/$ df
+blocks: 0 used, 64 free, 64 total (32 bytes each)
+bytes:  0 stored in 0 bytes of blocks (0 unused in last blocks)
+inodes: 1 used, 127 free, 128 total
+fs:/$ search a
+no matches
+# freed blocks are reused, lowest number first
+fs:/$ write new.txt reuse
+# several at once
+fs:/$ touch x y z
+fs:/$ rm x z
+fs:/$ ls
+new.txt
+y
+# errors
+fs:/$ rm /
+error: cannot remove: /
+fs:/$ rm nothere
+error: no such file or directory: nothere
+fs:/$ rm
+usage: rm [-r] <path>...
+fs:/$ rm -r
+usage: rm [-r] <path>...
