@@ -66,6 +66,7 @@ static void print_help(void) {
         "  stat <path>            show an inode\n"
         "search\n"
         "  search <prefix>        names starting with prefix, anywhere (trie)\n"
+        "  find <dir> <name>      exact name under dir (BFS with a queue)\n"
         "inside the data structures\n"
         "  df                     disk and inode usage\n"
         "other\n"
@@ -151,6 +152,9 @@ int main(void) {
         } else if (strcmp(cmd, "search") == 0) {
             if (n != 1) usage("search <prefix>");
             else fs_search(args[1]);
+        } else if (strcmp(cmd, "find") == 0) {
+            if (n != 2) usage("find <dir> <name>");
+            else fs_find(args[1], args[2]);
         } else if (strcmp(cmd, "df") == 0) {
             fs_df();
         } else {

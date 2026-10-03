@@ -24,6 +24,7 @@ void fs_ls(const char *path);
 void fs_cd(const char *path);
 void fs_pwd(void);
 void fs_search(const char *prefix);
+void fs_find(const char *dir, const char *name);
 
 // storage
 void fs_write(const char *path, const char *text);

@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra -g
 
-SRC = src/main.c src/fs.c src/disk.c src/inode_table.c src/btree.c src/trie.c src/stack.c
+SRC = src/main.c src/fs.c src/disk.c src/inode_table.c src/btree.c src/trie.c src/stack.c src/queue.c
 HEADERS = $(wildcard src/*.h)
 
 fs: $(SRC) $(HEADERS)

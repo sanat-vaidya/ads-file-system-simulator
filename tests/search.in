@@ -11,7 +11,17 @@ search r
 search R
 search xyz
 search rep*
+# find: exact name, nearest first (level by level)
+find / report.txt
+find docs report.txt
+find docs/old report.txt
+find / reports
+find / nothing
+find src main.c
 # errors
+find nothere x
+find report.txt x
+find /
 search
 # removing a file removes it from the trie
 search report

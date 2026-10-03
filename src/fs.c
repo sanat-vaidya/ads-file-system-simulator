@@ -4,6 +4,7 @@
 #include "btree.h"
 #include "trie.h"
 #include "stack.h"
+#include "queue.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -269,6 +270,43 @@ void fs_search(const char *prefix) {
         printf("%s\n", p);
     }
     if (n == 0) printf("no matches\n");
+}
+
+// Breadth-first search with a queue: nearest matches come out first.
+void fs_find(const char *dir, const char *name) {
+    int start = resolve(dir);
+    if (start == -1) {
+        error("no such directory", dir);
+        return;
+    }
+    if (!table_find(start)->is_dir) {
+        error("not a directory", dir);
+        return;
+    }
+
+    Queue q;
+    queue_init(&q);
+    enqueue(&q, start);
+    int visited = 0;
+    int found = 0;
+    char p[PATH_SIZE];
+    while (!queue_empty(&q)) {
+        int id = dequeue(&q);
+        visited++;
+        Inode *in = table_find(id);
+        if (strcmp(in->name, name) == 0) {
+            path_of(id, p);
+            printf("%s\n", p);
+            found++;
+        }
+        if (in->is_dir) {
+            int kids[MAX_INODES];
+            int n = children_of(id, kids);
+            for (int i = 0; i < n; i++) enqueue(&q, kids[i]);
+        }
+    }
+    if (found == 0) printf("no matches\n");
+    printf("(visited %d inodes)\n", visited);
 }
 
 // =====================================================================
