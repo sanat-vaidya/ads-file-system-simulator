@@ -2,6 +2,7 @@
 #include "disk.h"
 #include "inode_table.h"
 #include "btree.h"
+#include "trie.h"
 #include "stack.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +17,7 @@ static void error(const char *msg, const char *what) {
 
 void fs_init(void) {
     disk_init();
+    trie_init();
 
     Inode *root = malloc(sizeof(Inode));
     root->id = ROOT_ID;
@@ -33,6 +35,7 @@ void fs_init(void) {
 
 void fs_shutdown(void) {
     table_free_all();   // every inode and every directory's B-tree
+    trie_free_all();
 }
 
 // =====================================================================
@@ -187,6 +190,7 @@ static int create(const char *path, bool is_dir) {
 
     table_insert(in);
     btree_insert(table_find(parent_id)->children, name, in->id);
+    trie_insert(name, in->id);
     return in->id;
 }
 
@@ -254,6 +258,17 @@ void fs_pwd(void) {
     char p[PATH_SIZE];
     path_of(cwd, p);
     printf("%s\n", p);
+}
+
+void fs_search(const char *prefix) {
+    int ids[MAX_INODES];
+    int n = trie_search(prefix, ids);
+    char p[PATH_SIZE];
+    for (int i = 0; i < n; i++) {
+        path_of(ids[i], p);
+        printf("%s\n", p);
+    }
+    if (n == 0) printf("no matches\n");
 }
 
 // =====================================================================
