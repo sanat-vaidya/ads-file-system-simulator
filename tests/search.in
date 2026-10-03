@@ -24,5 +24,7 @@ find report.txt x
 find /
 search
 # removing a file removes it from the trie
+rm docs/report.txt
 search report
+rm -r docs
 search rep

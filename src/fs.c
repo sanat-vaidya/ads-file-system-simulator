@@ -195,6 +195,20 @@ static int create(const char *path, bool is_dir) {
     return in->id;
 }
 
+// Free an inode and everything under it. DFS: children first, then itself.
+static void delete_tree(int id) {
+    Inode *in = table_find(id);
+    if (in->is_dir) {
+        int kids[MAX_INODES];
+        int n = children_of(id, kids);
+        for (int i = 0; i < n; i++) delete_tree(kids[i]);
+    } else {
+        disk_free_chain(in->first_block);
+    }
+    trie_remove(in->name, id);
+    table_remove(id);   // also frees the directory's B-tree
+}
+
 static void print_chain(int first) {
     if (first == FAT_END) {
         printf("(no blocks)");
@@ -428,4 +442,27 @@ void fs_df(void) {
            stored, used * BLOCK_SIZE, used * BLOCK_SIZE - stored);
     printf("inodes: %d used, %d free, %d total\n",
            table_size(), MAX_INODES - table_size(), MAX_INODES);
+}
+
+// =====================================================================
+// rm (both sides)
+// =====================================================================
+
+void fs_rm(const char *path, bool recursive) {
+    int id = resolve(path);
+    if (id == -1) {
+        error("no such file or directory", path);
+        return;
+    }
+    if (id == ROOT_ID) {
+        error("cannot remove", "/");
+        return;
+    }
+    Inode *in = table_find(id);
+    if (in->is_dir && btree_size(in->children) > 0 && !recursive) {
+        error("directory not empty (use rm -r)", path);
+        return;
+    }
+    btree_remove(table_find(in->parent_id)->children, in->name);
+    delete_tree(id);
 }

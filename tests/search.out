@@ -61,14 +61,12 @@ usage: find <dir> <name>
 fs:/$ search
 usage: search <prefix>
 # removing a file removes it from the trie
+fs:/$ rm docs/report.txt
 fs:/$ search report
 /report.txt
-/docs/report.txt
 /docs/old/report.txt
 /docs/reports
+fs:/$ rm -r docs
 fs:/$ search rep
 /src/rep.c
 /report.txt
-/docs/report.txt
-/docs/old/report.txt
-/docs/reports

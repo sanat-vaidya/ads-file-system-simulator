@@ -63,6 +63,7 @@ static void print_help(void) {
         "  write <file> <text>    replace a file's contents (creates it if needed)\n"
         "  append <file> <text>   add a line to the end of a file\n"
         "  cat <file>             print a file\n"
+        "  rm [-r] <path>...      remove (-r: a directory and everything in it)\n"
         "  stat <path>            show an inode\n"
         "search\n"
         "  search <prefix>        names starting with prefix, anywhere (trie)\n"
@@ -146,6 +147,11 @@ int main(void) {
         } else if (strcmp(cmd, "cat") == 0) {
             if (n != 1) usage("cat <file>");
             else fs_cat(args[1]);
+        } else if (strcmp(cmd, "rm") == 0) {
+            bool recursive = (n >= 1 && strcmp(args[1], "-r") == 0);
+            int first = recursive ? 2 : 1;
+            if (first > n) usage("rm [-r] <path>...");
+            for (int i = first; i <= n; i++) fs_rm(args[i], recursive);
         } else if (strcmp(cmd, "stat") == 0) {
             if (n != 1) usage("stat <path>");
             else fs_stat(args[1]);
