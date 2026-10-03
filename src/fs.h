@@ -32,6 +32,9 @@ void fs_cat(const char *path);
 void fs_stat(const char *path);
 void fs_df(void);
 
+// both
+void fs_rm(const char *path, bool recursive);
+
 void fs_cwd_path(char *out);   // out needs PATH_SIZE chars
 
 #endif
