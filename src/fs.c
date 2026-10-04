@@ -275,6 +275,62 @@ void fs_pwd(void) {
     printf("%s\n", p);
 }
 
+void fs_mv(const char *src, const char *dst) {
+    int id = resolve(src);
+    if (id == -1) {
+        error("no such file or directory", src);
+        return;
+    }
+    if (id == ROOT_ID) {
+        error("cannot move", "/");
+        return;
+    }
+    Inode *in = table_find(id);
+
+    // work out the new parent directory and the new name
+    int new_parent;
+    char new_name[LINE_SIZE];
+    int dst_id = resolve(dst);
+    if (dst_id != -1 && table_find(dst_id)->is_dir) {
+        new_parent = dst_id;   // "mv a.txt docs" moves a.txt inside docs
+        strcpy(new_name, in->name);
+    } else if (dst_id != -1) {
+        error("already exists", dst);
+        return;
+    } else {
+        if (!resolve_parent(dst, &new_parent, new_name)) {
+            error("no such directory", dst);
+            return;
+        }
+        if (!valid_name(new_name)) {
+            error("invalid name", new_name);
+            return;
+        }
+    }
+
+    if (new_parent == in->parent_id && strcmp(new_name, in->name) == 0) return;   // nothing to do
+
+    Inode *target = table_find(new_parent);
+    if (btree_find(target->children, new_name) != -1) {
+        char where[PATH_SIZE] = "";
+        if (new_parent != ROOT_ID) path_of(new_parent, where);
+        strcat(where, "/");
+        strcat(where, new_name);
+        error("already exists", where);
+        return;
+    }
+
+    // only names move, the disk blocks stay where they are
+    btree_remove(table_find(in->parent_id)->children, in->name);
+    btree_insert(target->children, new_name, id);
+    if (strcmp(new_name, in->name) != 0) {
+        trie_remove(in->name, id);
+        trie_insert(new_name, id);
+        strcpy(in->name, new_name);
+    }
+    in->parent_id = new_parent;
+}
+
 void fs_search(const char *prefix) {
     int ids[MAX_INODES];
     int n = trie_search(prefix, ids);
