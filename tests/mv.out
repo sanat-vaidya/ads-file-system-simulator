@@ -1,0 +1,56 @@
+# mv: rename, move into a directory, move directories
+fs:/$ mkdir a b a/sub
+fs:/$ write a/f.txt data in f
+# rename in place
+fs:/$ mv a/f.txt a/g.txt
+fs:/$ ls a
+g.txt
+sub/
+fs:/$ cat a/g.txt
+data in f
+# move into an existing directory keeps the name
+fs:/$ mv a/g.txt b
+fs:/$ ls a
+sub/
+fs:/$ ls b
+g.txt
+# move and rename at once
+fs:/$ mv b/g.txt a/sub/h.txt
+# moving a directory takes everything inside with it
+fs:/$ mv a/sub b
+# the trie follows renames
+fs:/$ search g
+no matches
+fs:/$ search h
+/b/sub/h.txt
+fs:/$ mv b/sub/h.txt b/sub/renamed.txt
+fs:/$ search h
+no matches
+fs:/$ search renamed
+/b/sub/renamed.txt
+# moving the current directory: cwd is an inode id, so it follows
+fs:/$ cd b/sub
+fs:/b/sub$ pwd
+/b/sub
+fs:/b/sub$ mv /b /c
+fs:/c/sub$ pwd
+/c/sub
+fs:/c/sub$ cd /
+# moving to the same place does nothing
+fs:/$ mv c/sub c
+# errors
+fs:/$ mv nothere x
+error: no such file or directory: nothere
+fs:/$ mv / x
+error: cannot move: /
+fs:/$ touch c/sub/clash a/clash
+fs:/$ mv c/sub/clash a
+error: already exists: /a/clash
+fs:/$ mv c/sub/clash nothere/x
+error: no such directory: nothere/x
+fs:/$ mv c/sub/clash a/bad*name
+error: invalid name: bad*name
+fs:/$ mv c/sub/clash c/sub/renamed.txt
+error: already exists: c/sub/renamed.txt
+fs:/$ mv a
+usage: mv <src> <dst>

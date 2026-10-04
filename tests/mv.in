@@ -1,0 +1,38 @@
+# mv: rename, move into a directory, move directories
+mkdir a b a/sub
+write a/f.txt data in f
+# rename in place
+mv a/f.txt a/g.txt
+ls a
+cat a/g.txt
+# move into an existing directory keeps the name
+mv a/g.txt b
+ls a
+ls b
+# move and rename at once
+mv b/g.txt a/sub/h.txt
+# moving a directory takes everything inside with it
+mv a/sub b
+# the trie follows renames
+search g
+search h
+mv b/sub/h.txt b/sub/renamed.txt
+search h
+search renamed
+# moving the current directory: cwd is an inode id, so it follows
+cd b/sub
+pwd
+mv /b /c
+pwd
+cd /
+# moving to the same place does nothing
+mv c/sub c
+# errors
+mv nothere x
+mv / x
+touch c/sub/clash a/clash
+mv c/sub/clash a
+mv c/sub/clash nothere/x
+mv c/sub/clash a/bad*name
+mv c/sub/clash c/sub/renamed.txt
+mv a

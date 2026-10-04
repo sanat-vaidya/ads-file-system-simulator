@@ -64,6 +64,7 @@ static void print_help(void) {
         "  append <file> <text>   add a line to the end of a file\n"
         "  cat <file>             print a file\n"
         "  rm [-r] <path>...      remove (-r: a directory and everything in it)\n"
+        "  mv <src> <dst>         move or rename\n"
         "  stat <path>            show an inode\n"
         "search\n"
         "  search <prefix>        names starting with prefix, anywhere (trie)\n"
@@ -152,6 +153,9 @@ int main(void) {
             int first = recursive ? 2 : 1;
             if (first > n) usage("rm [-r] <path>...");
             for (int i = first; i <= n; i++) fs_rm(args[i], recursive);
+        } else if (strcmp(cmd, "mv") == 0) {
+            if (n != 2) usage("mv <src> <dst>");
+            else fs_mv(args[1], args[2]);
         } else if (strcmp(cmd, "stat") == 0) {
             if (n != 1) usage("stat <path>");
             else fs_stat(args[1]);
