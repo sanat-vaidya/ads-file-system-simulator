@@ -21,6 +21,8 @@ ls ../../src
 cd //docs//old
 pwd
 # .. at the root stays at the root
+cd /../..
+pwd
 cd /docs
 cd
 pwd

@@ -34,7 +34,10 @@ fs:/docs/notes$ cd //docs//old
 fs:/docs/old$ pwd
 /docs/old
 # .. at the root stays at the root
-fs:/docs/old$ cd /docs
+fs:/docs/old$ cd /../..
+fs:/$ pwd
+/
+fs:/$ cd /docs
 fs:/docs$ cd
 fs:/$ pwd
 /

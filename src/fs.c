@@ -91,7 +91,7 @@ static bool normalize(const char *path, char *buf, Stack *parts) {
         if (buf[i] != '/' && buf[i] != '\0') continue;
         buf[i] = '\0';   // the current name ends here
         if (strcmp(name, "..") == 0) {
-            stack_pop(parts);
+            if (!stack_empty(parts)) stack_pop(parts);
         } else if (strcmp(name, "") != 0 && strcmp(name, ".") != 0) {
             if (stack_full(parts)) return false;
             stack_push(parts, name);
