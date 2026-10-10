@@ -7,6 +7,20 @@ fs:/$ df
 blocks: 4 used, 60 free, 64 total (32 bytes each)
 bytes:  55 stored in 128 bytes of blocks (73 unused in last blocks)
 inodes: 7 used, 121 free, 128 total
+fs:/$ diskmap
+disk: 4/64 blocks used ('.' = free)
+           blocks    bitmap
+   0- 7:  AABC....  11110000
+   8-15:  ........  00000000
+  16-23:  ........  00000000
+  24-31:  ........  00000000
+  32-39:  ........  00000000
+  40-47:  ........  00000000
+  48-55:  ........  00000000
+  56-63:  ........  00000000
+  A = /docs/a.txt
+  B = /docs/old/b.txt
+  C = /top.txt
 # remove one file
 fs:/$ rm top.txt
 fs:/$ ls
@@ -22,6 +36,17 @@ fs:/$ df
 blocks: 0 used, 64 free, 64 total (32 bytes each)
 bytes:  0 stored in 0 bytes of blocks (0 unused in last blocks)
 inodes: 1 used, 127 free, 128 total
+fs:/$ diskmap
+disk: 0/64 blocks used ('.' = free)
+           blocks    bitmap
+   0- 7:  ........  00000000
+   8-15:  ........  00000000
+  16-23:  ........  00000000
+  24-31:  ........  00000000
+  32-39:  ........  00000000
+  40-47:  ........  00000000
+  48-55:  ........  00000000
+  56-63:  ........  00000000
 fs:/$ search a
 no matches
 # freed blocks are reused, lowest number first

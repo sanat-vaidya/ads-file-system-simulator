@@ -500,6 +500,59 @@ void fs_df(void) {
            table_size(), MAX_INODES - table_size(), MAX_INODES);
 }
 
+// Files in tree order (DFS, sorted by name). Returns the new count.
+static int collect_files(int id, int out[], int n) {
+    Inode *in = table_find(id);
+    if (!in->is_dir) {
+        out[n] = id;
+        return n + 1;
+    }
+    int kids[MAX_INODES];
+    int k = children_of(id, kids);
+    for (int i = 0; i < k; i++) n = collect_files(kids[i], out, n);
+    return n;
+}
+
+#define LETTERS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+#define NUM_LETTERS 62
+
+// Each file with data gets a letter. One row = 8 blocks = one byte of the bitmap.
+void fs_diskmap(void) {
+    char owner[NUM_BLOCKS];
+    for (int b = 0; b < NUM_BLOCKS; b++) owner[b] = '.';
+
+    int files[MAX_INODES];
+    int num_files = collect_files(ROOT_ID, files, 0);
+
+    int shown[MAX_INODES];   // files that own blocks, in letter order
+    int num_shown = 0;
+    for (int i = 0; i < num_files; i++) {
+        Inode *in = table_find(files[i]);
+        if (in->first_block == FAT_END) continue;
+        char letter = num_shown < NUM_LETTERS ? LETTERS[num_shown] : '*';
+        shown[num_shown] = files[i];
+        num_shown++;
+        int chain[NUM_BLOCKS];
+        int n = disk_chain(in->first_block, chain);
+        for (int j = 0; j < n; j++) owner[chain[j]] = letter;
+    }
+
+    printf("disk: %d/%d blocks used ('.' = free)\n", NUM_BLOCKS - disk_free_count(), NUM_BLOCKS);
+    printf("           blocks    bitmap\n");
+    for (int row = 0; row < NUM_BLOCKS; row += 8) {
+        printf("  %2d-%2d:  ", row, row + 7);
+        for (int b = row; b < row + 8; b++) printf("%c", owner[b]);
+        printf("  ");
+        for (int b = row; b < row + 8; b++) printf("%c", disk_is_used(b) ? '1' : '0');
+        printf("\n");
+    }
+    char p[PATH_SIZE];
+    for (int i = 0; i < num_shown; i++) {
+        path_of(shown[i], p);
+        printf("  %c = %s\n", i < NUM_LETTERS ? LETTERS[i] : '*', p);
+    }
+}
+
 void fs_blocks(const char *path) {
     int id = resolve(path);
     if (id == -1) {

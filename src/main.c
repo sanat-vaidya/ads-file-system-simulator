@@ -71,6 +71,7 @@ static void print_help(void) {
         "  find <dir> <name>      exact name under dir (BFS with a queue)\n"
         "inside the data structures\n"
         "  df                     disk and inode usage\n"
+        "  diskmap                which file owns each block, and the bitmap\n"
         "  blocks <file>          a file's block chain (FAT) and block contents\n"
         "other\n"
         "  help                   this list\n"
@@ -168,6 +169,8 @@ int main(void) {
             else fs_find(args[1], args[2]);
         } else if (strcmp(cmd, "df") == 0) {
             fs_df();
+        } else if (strcmp(cmd, "diskmap") == 0) {
+            fs_diskmap();
         } else if (strcmp(cmd, "blocks") == 0) {
             if (n != 1) usage("blocks <file>");
             else fs_blocks(args[1]);

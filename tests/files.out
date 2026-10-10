@@ -17,6 +17,20 @@ fs:/$ blocks c.txt
 /c.txt: 33 bytes, chain 2 -> 3 -> END
   block  2: "abcdefghijklmnopqrstuvwxyz012345"
   block  3: "6"
+fs:/$ diskmap
+disk: 4/64 blocks used ('.' = free)
+           blocks    bitmap
+   0- 7:  ABCC....  11110000
+   8-15:  ........  00000000
+  16-23:  ........  00000000
+  24-31:  ........  00000000
+  32-39:  ........  00000000
+  40-47:  ........  00000000
+  48-55:  ........  00000000
+  56-63:  ........  00000000
+  A = /a.txt
+  B = /b.txt
+  C = /c.txt
 # append fills the last block of a.txt, then links a new block
 fs:/$ append a.txt this line is long enough to spill over
 fs:/$ cat a.txt
@@ -26,6 +40,20 @@ fs:/$ blocks a.txt
 /a.txt: 44 bytes, chain 0 -> 4 -> END
   block  0: "hello\nthis line is long enough t"
   block  4: "o spill over"
+fs:/$ diskmap
+disk: 5/64 blocks used ('.' = free)
+           blocks    bitmap
+   0- 7:  ABCCA...  11111000
+   8-15:  ........  00000000
+  16-23:  ........  00000000
+  24-31:  ........  00000000
+  32-39:  ........  00000000
+  40-47:  ........  00000000
+  48-55:  ........  00000000
+  56-63:  ........  00000000
+  A = /a.txt
+  B = /b.txt
+  C = /c.txt
 # append to a file whose last block is exactly full
 fs:/$ append b.txt x
 fs:/$ blocks b.txt

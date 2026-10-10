@@ -4,6 +4,7 @@ write docs/a.txt aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 write docs/old/b.txt bbbbbbbbbb
 write top.txt top
 df
+diskmap
 # remove one file
 rm top.txt
 ls
@@ -13,6 +14,7 @@ rm empty
 rm docs
 rm -r docs
 df
+diskmap
 search a
 # freed blocks are reused, lowest number first
 write new.txt reuse

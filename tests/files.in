@@ -9,10 +9,12 @@ blocks b.txt
 # 33 chars needs 2 blocks
 write c.txt abcdefghijklmnopqrstuvwxyz0123456
 blocks c.txt
+diskmap
 # append fills the last block of a.txt, then links a new block
 append a.txt this line is long enough to spill over
 cat a.txt
 blocks a.txt
+diskmap
 # append to a file whose last block is exactly full
 append b.txt x
 blocks b.txt
