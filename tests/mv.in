@@ -11,8 +11,10 @@ ls a
 ls b
 # move and rename at once
 mv b/g.txt a/sub/h.txt
+tree
 # moving a directory takes everything inside with it
 mv a/sub b
+tree
 # the trie follows renames
 search g
 search h
@@ -27,6 +29,7 @@ pwd
 cd /
 # moving to the same place does nothing
 mv c/sub c
+tree
 # errors
 mv nothere x
 mv / x
@@ -36,3 +39,4 @@ mv c/sub/clash nothere/x
 mv c/sub/clash a/bad*name
 mv c/sub/clash c/sub/renamed.txt
 mv a
+tree

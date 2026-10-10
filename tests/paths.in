@@ -26,9 +26,12 @@ pwd
 cd /docs
 cd
 pwd
+tree
+tree docs
 # errors
 cd nothere
 cd docs/readme.txt
 mkdir docs
 mkdir nothere/x
 ls nothere
+tree docs/readme.txt

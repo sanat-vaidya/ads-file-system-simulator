@@ -41,6 +41,21 @@ fs:/$ cd /docs
 fs:/docs$ cd
 fs:/$ pwd
 /
+fs:/$ tree
+/
+├── docs/
+│   ├── notes/
+│   ├── old/
+│   └── readme.txt
+└── src/
+    └── main.c
+4 directories, 2 files
+fs:/$ tree docs
+/docs
+├── notes/
+├── old/
+└── readme.txt
+2 directories, 1 files
 # errors
 fs:/$ cd nothere
 error: no such directory: nothere
@@ -52,3 +67,5 @@ fs:/$ mkdir nothere/x
 error: no such directory: nothere/x
 fs:/$ ls nothere
 error: no such file or directory: nothere
+fs:/$ tree docs/readme.txt
+error: not a directory: docs/readme.txt
