@@ -11,6 +11,8 @@ ls a
 ls b
 # move and rename at once
 mv b/g.txt a/sub/h.txt
+# disk blocks do not move, only names change
+blocks a/sub/h.txt
 # moving a directory takes everything inside with it
 mv a/sub b
 # the trie follows renames

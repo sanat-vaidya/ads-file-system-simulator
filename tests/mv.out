@@ -16,6 +16,10 @@ fs:/$ ls b
 g.txt
 # move and rename at once
 fs:/$ mv b/g.txt a/sub/h.txt
+# disk blocks do not move, only names change
+fs:/$ blocks a/sub/h.txt
+/a/sub/h.txt: 9 bytes, chain 0 -> END
+  block  0: "data in f"
 # moving a directory takes everything inside with it
 fs:/$ mv a/sub b
 # the trie follows renames

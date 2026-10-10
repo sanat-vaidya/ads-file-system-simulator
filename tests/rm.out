@@ -26,6 +26,9 @@ fs:/$ search a
 no matches
 # freed blocks are reused, lowest number first
 fs:/$ write new.txt reuse
+fs:/$ blocks new.txt
+/new.txt: 5 bytes, chain 0 -> END
+  block  0: "reuse"
 # several at once
 fs:/$ touch x y z
 fs:/$ rm x z

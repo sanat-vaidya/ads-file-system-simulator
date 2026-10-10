@@ -71,6 +71,7 @@ static void print_help(void) {
         "  find <dir> <name>      exact name under dir (BFS with a queue)\n"
         "inside the data structures\n"
         "  df                     disk and inode usage\n"
+        "  blocks <file>          a file's block chain (FAT) and block contents\n"
         "other\n"
         "  help                   this list\n"
         "  exit                   quit\n");
@@ -167,6 +168,9 @@ int main(void) {
             else fs_find(args[1], args[2]);
         } else if (strcmp(cmd, "df") == 0) {
             fs_df();
+        } else if (strcmp(cmd, "blocks") == 0) {
+            if (n != 1) usage("blocks <file>");
+            else fs_blocks(args[1]);
         } else {
             printf("error: unknown command: %s (type 'help')\n", cmd);
         }

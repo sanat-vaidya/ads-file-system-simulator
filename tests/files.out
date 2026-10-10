@@ -3,25 +3,50 @@
 fs:/$ write a.txt hello
 fs:/$ cat a.txt
 hello
+fs:/$ blocks a.txt
+/a.txt: 5 bytes, chain 0 -> END
+  block  0: "hello"
 # exactly one full block (32 chars)
 fs:/$ write b.txt abcdefghijklmnopqrstuvwxyz012345
+fs:/$ blocks b.txt
+/b.txt: 32 bytes, chain 1 -> END
+  block  1: "abcdefghijklmnopqrstuvwxyz012345"
 # 33 chars needs 2 blocks
 fs:/$ write c.txt abcdefghijklmnopqrstuvwxyz0123456
+fs:/$ blocks c.txt
+/c.txt: 33 bytes, chain 2 -> 3 -> END
+  block  2: "abcdefghijklmnopqrstuvwxyz012345"
+  block  3: "6"
 # append fills the last block of a.txt, then links a new block
 fs:/$ append a.txt this line is long enough to spill over
 fs:/$ cat a.txt
 hello
 this line is long enough to spill over
+fs:/$ blocks a.txt
+/a.txt: 44 bytes, chain 0 -> 4 -> END
+  block  0: "hello\nthis line is long enough t"
+  block  4: "o spill over"
 # append to a file whose last block is exactly full
 fs:/$ append b.txt x
+fs:/$ blocks b.txt
+/b.txt: 34 bytes, chain 1 -> 5 -> END
+  block  1: "abcdefghijklmnopqrstuvwxyz012345"
+  block  5: "\nx"
 # overwrite: old blocks are freed, new ones taken from the lowest free
 fs:/$ write c.txt short
+fs:/$ blocks c.txt
+/c.txt: 5 bytes, chain 2 -> END
+  block  2: "short"
 fs:/$ cat c.txt
 short
 # empty files have no blocks
 fs:/$ touch empty.txt
 fs:/$ cat empty.txt
+fs:/$ blocks empty.txt
+/empty.txt: 0 bytes, chain (no blocks)
 fs:/$ write c.txt
+fs:/$ blocks c.txt
+/c.txt: 0 bytes, chain (no blocks)
 fs:/$ append new.txt first line
 fs:/$ cat new.txt
 first line
@@ -62,6 +87,8 @@ fs:/$ write / hi
 error: is a directory: /
 fs:/$ mkdir d
 fs:/$ append d hi
+error: is a directory: d
+fs:/$ blocks d
 error: is a directory: d
 fs:/$ write nothere/x.txt hi
 error: no such directory: nothere/x.txt

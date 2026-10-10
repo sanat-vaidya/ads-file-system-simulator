@@ -500,6 +500,38 @@ void fs_df(void) {
            table_size(), MAX_INODES - table_size(), MAX_INODES);
 }
 
+void fs_blocks(const char *path) {
+    int id = resolve(path);
+    if (id == -1) {
+        error("no such file", path);
+        return;
+    }
+    Inode *in = table_find(id);
+    if (in->is_dir) {
+        error("is a directory", path);
+        return;
+    }
+    char p[PATH_SIZE];
+    path_of(id, p);
+    printf("%s: %d bytes, chain ", p, in->size);
+    print_chain(in->first_block);
+    printf("\n");
+
+    // show what each block holds (newlines shown as \n)
+    char content[DISK_BYTES + 1];
+    disk_read_bytes(in->first_block, in->size, content);
+    int chain[NUM_BLOCKS];
+    int n = disk_chain(in->first_block, chain);
+    for (int i = 0; i < n; i++) {
+        printf("  block %2d: \"", chain[i]);
+        for (int j = i * BLOCK_SIZE; j < (i + 1) * BLOCK_SIZE && j < in->size; j++) {
+            if (content[j] == '\n') printf("\\n");
+            else printf("%c", content[j]);
+        }
+        printf("\"\n");
+    }
+}
+
 // =====================================================================
 // rm (both sides)
 // =====================================================================

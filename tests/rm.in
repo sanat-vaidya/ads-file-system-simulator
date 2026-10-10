@@ -16,6 +16,7 @@ df
 search a
 # freed blocks are reused, lowest number first
 write new.txt reuse
+blocks new.txt
 # several at once
 touch x y z
 rm x z
