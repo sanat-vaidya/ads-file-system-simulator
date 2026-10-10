@@ -422,6 +422,24 @@ void fs_tree(const char *path) {
     printf("%d directories, %d files\n", dirs, files);
 }
 
+void fs_btree(const char *path) {
+    int id = resolve(path);
+    if (id == -1) {
+        error("no such directory", path);
+        return;
+    }
+    Inode *in = table_find(id);
+    if (!in->is_dir) {
+        error("not a directory", path);
+        return;
+    }
+    char p[PATH_SIZE];
+    path_of(id, p);
+    printf("B-tree of %s: %d entries, height %d, max %d keys per node\n",
+           p, btree_size(in->children), btree_height(in->children), MAX_KEYS);
+    btree_print(in->children);
+}
+
 // =====================================================================
 // storage commands
 // =====================================================================

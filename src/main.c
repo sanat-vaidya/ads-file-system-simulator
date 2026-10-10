@@ -72,6 +72,7 @@ static void print_help(void) {
         "  tree [path]            print the directory tree (DFS)\n"
         "inside the data structures\n"
         "  df                     disk and inode usage\n"
+        "  btree [dir]            a directory's B-tree, level by level\n"
         "other\n"
         "  help                   this list\n"
         "  exit                   quit\n");
@@ -171,6 +172,9 @@ int main(void) {
             else fs_tree(n == 0 ? "." : args[1]);
         } else if (strcmp(cmd, "df") == 0) {
             fs_df();
+        } else if (strcmp(cmd, "btree") == 0) {
+            if (n > 1) usage("btree [dir]");
+            else fs_btree(n == 0 ? "." : args[1]);
         } else {
             printf("error: unknown command: %s (type 'help')\n", cmd);
         }

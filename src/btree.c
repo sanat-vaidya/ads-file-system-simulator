@@ -269,6 +269,31 @@ bool btree_remove(BTree *t, const char *key) {
     return true;
 }
 
+// ---------------- print (level by level) ----------------
+
+// print every node that is `depth` levels below x
+static void print_level(BTreeNode *x, int depth) {
+    if (depth == 0) {
+        printf(" [");
+        for (int i = 0; i < x->n; i++) {
+            if (i > 0) printf(" | ");
+            printf("%s", x->keys[i]);
+        }
+        printf("]");
+        return;
+    }
+    for (int i = 0; i <= x->n; i++) print_level(x->child[i], depth - 1);
+}
+
+void btree_print(BTree *t) {
+    int h = btree_height(t);
+    for (int d = 0; d < h; d++) {
+        printf("  level %d:", d);
+        print_level(t->root, d);
+        printf("\n");
+    }
+}
+
 // ---------------- check ----------------
 
 static bool check_node(BTreeNode *x, bool is_root, int depth, int *leaf_depth) {

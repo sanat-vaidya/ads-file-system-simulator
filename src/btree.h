@@ -48,6 +48,7 @@ bool btree_remove(BTree *t, const char *key);           // false if missing
 int btree_size(BTree *t);
 int btree_height(BTree *t);
 int btree_list(BTree *t, int vals[]);   // values in key order, returns how many
+void btree_print(BTree *t);
 bool btree_check(BTree *t);             // verifies all B-tree rules (used by tests)
 
 #endif

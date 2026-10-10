@@ -1,0 +1,89 @@
+# each directory's entries live in a B-tree with at most 3 keys per node
+fs:/$ mkdir d
+fs:/$ btree d
+B-tree of /d: 0 entries, height 1, max 3 keys per node
+  level 0: []
+fs:/$ touch d/a d/b d/c
+fs:/$ btree d
+B-tree of /d: 3 entries, height 1, max 3 keys per node
+  level 0: [a | b | c]
+# 4th key: the root is full, so it splits and the tree grows taller
+fs:/$ touch d/d
+fs:/$ btree d
+B-tree of /d: 4 entries, height 2, max 3 keys per node
+  level 0: [b]
+  level 1: [a] [c | d]
+fs:/$ touch d/e
+fs:/$ btree d
+B-tree of /d: 5 entries, height 2, max 3 keys per node
+  level 0: [b]
+  level 1: [a] [c | d | e]
+# inserting f splits the full leaf [c | d | e] on the way down
+fs:/$ touch d/f d/g
+fs:/$ btree d
+B-tree of /d: 7 entries, height 2, max 3 keys per node
+  level 0: [b | d]
+  level 1: [a] [c] [e | f | g]
+fs:/$ touch d/h d/i d/j d/k d/l
+fs:/$ btree d
+B-tree of /d: 12 entries, height 3, max 3 keys per node
+  level 0: [d]
+  level 1: [b] [f | h | j]
+  level 2: [a] [c] [e] [g] [i] [k | l]
+# ls is an in-order walk of the B-tree, so it is always sorted
+fs:/$ touch d/0first d/Zed
+fs:/$ ls d
+0first
+Zed
+a
+b
+c
+d
+e
+f
+g
+h
+i
+j
+k
+l
+# removing: borrow from a sibling or merge with one
+fs:/$ rm d/a
+fs:/$ btree d
+B-tree of /d: 13 entries, height 3, max 3 keys per node
+  level 0: [f]
+  level 1: [b | d] [h | j]
+  level 2: [0first | Zed] [c] [e] [g] [i] [k | l]
+fs:/$ rm d/0first d/Zed d/b
+fs:/$ btree d
+B-tree of /d: 10 entries, height 3, max 3 keys per node
+  level 0: [h]
+  level 1: [d | f] [j]
+  level 2: [c] [e] [g] [i] [k | l]
+fs:/$ rm d/c d/d d/e d/f
+fs:/$ btree d
+B-tree of /d: 6 entries, height 2, max 3 keys per node
+  level 0: [h | j]
+  level 1: [g] [i] [k | l]
+fs:/$ rm d/g d/h d/i d/j
+fs:/$ btree d
+B-tree of /d: 2 entries, height 1, max 3 keys per node
+  level 0: [k | l]
+fs:/$ rm d/k d/l
+fs:/$ btree d
+B-tree of /d: 0 entries, height 1, max 3 keys per node
+  level 0: []
+fs:/$ stat d
+path:    /d
+type:    directory
+inode:   1 (hash bucket 1)
+parent:  0 (/)
+entries: 0 (B-tree height 1)
+fs:/$ btree d/../d
+B-tree of /d: 0 entries, height 1, max 3 keys per node
+  level 0: []
+fs:/$ btree nothere
+error: no such directory: nothere
+fs:/$ touch file
+fs:/$ btree file
+error: not a directory: file
