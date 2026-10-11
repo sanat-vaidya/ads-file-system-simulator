@@ -73,6 +73,7 @@ static void print_help(void) {
         "  df                     disk and inode usage\n"
         "  diskmap                which file owns each block, and the bitmap\n"
         "  blocks <file>          a file's block chain (FAT) and block contents\n"
+        "  hashmap                the inode table's buckets\n"
         "other\n"
         "  help                   this list\n"
         "  exit                   quit\n");
@@ -174,6 +175,8 @@ int main(void) {
         } else if (strcmp(cmd, "blocks") == 0) {
             if (n != 1) usage("blocks <file>");
             else fs_blocks(args[1]);
+        } else if (strcmp(cmd, "hashmap") == 0) {
+            fs_hashmap();
         } else {
             printf("error: unknown command: %s (type 'help')\n", cmd);
         }

@@ -79,3 +79,25 @@ int table_all_ids(int out[]) {
     }
     return n;
 }
+
+void table_print(void) {
+    int longest = 0;
+    for (int b = 0; b < NUM_BUCKETS; b++) {
+        int len = 0;
+        for (HashNode *h = buckets[b]; h != NULL; h = h->next) len++;
+        if (len > longest) longest = len;
+    }
+
+    printf("inode table: %d inodes, %d buckets, load factor %.2f, longest chain %d\n",
+           count, NUM_BUCKETS, (double)count / NUM_BUCKETS, longest);
+
+    for (int b = 0; b < NUM_BUCKETS; b++) {
+        if (buckets[b] == NULL) continue;
+        printf("  bucket %2d:", b);
+        for (HashNode *h = buckets[b]; h != NULL; h = h->next) {
+            if (h != buckets[b]) printf(" ->");
+            printf(" %d (%s)", h->key, h->inode->name);
+        }
+        printf("\n");
+    }
+}
