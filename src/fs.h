@@ -35,6 +35,9 @@ void fs_append(const char *path, const char *text);
 void fs_cat(const char *path);
 void fs_stat(const char *path);
 void fs_df(void);
+void fs_diskmap(void);
+void fs_blocks(const char *path);
+void fs_hashmap(void);
 
 // both
 void fs_rm(const char *path, bool recursive);

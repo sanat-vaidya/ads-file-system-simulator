@@ -23,6 +23,10 @@ fs:/$ tree
 │       └── h.txt
 └── b/
 3 directories, 1 files
+# disk blocks do not move, only names change
+fs:/$ blocks a/sub/h.txt
+/a/sub/h.txt: 9 bytes, chain 0 -> END
+  block  0: "data in f"
 # moving a directory takes everything inside with it
 fs:/$ mv a/sub b
 fs:/$ tree

@@ -1,0 +1,82 @@
+# fragmentation: a file's blocks do not need to be next to each other
+# each of these takes 2 blocks
+fs:/$ write a.txt aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+fs:/$ write b.txt bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fs:/$ write c.txt cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+fs:/$ write d.txt dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+fs:/$ diskmap
+disk: 8/64 blocks used ('.' = free)
+           blocks    bitmap
+   0- 7:  AABBCCDD  11111111
+   8-15:  ........  00000000
+  16-23:  ........  00000000
+  24-31:  ........  00000000
+  32-39:  ........  00000000
+  40-47:  ........  00000000
+  48-55:  ........  00000000
+  56-63:  ........  00000000
+  A = /a.txt
+  B = /b.txt
+  C = /c.txt
+  D = /d.txt
+# delete b and d, leaving two holes
+fs:/$ rm b.txt d.txt
+fs:/$ diskmap
+disk: 4/64 blocks used ('.' = free)
+           blocks    bitmap
+   0- 7:  AA..BB..  11001100
+   8-15:  ........  00000000
+  16-23:  ........  00000000
+  24-31:  ........  00000000
+  32-39:  ........  00000000
+  40-47:  ........  00000000
+  48-55:  ........  00000000
+  56-63:  ........  00000000
+  A = /a.txt
+  B = /c.txt
+# a 5-block file fills both holes and continues after c
+fs:/$ write e.txt The FAT links blocks 2 3 6 7 8 into one chain. The file is stored in pieces, but cat still follows the chain and reads it back in the right order.
+fs:/$ diskmap
+disk: 9/64 blocks used ('.' = free)
+           blocks    bitmap
+   0- 7:  AACCBBCC  11111111
+   8-15:  C.......  10000000
+  16-23:  ........  00000000
+  24-31:  ........  00000000
+  32-39:  ........  00000000
+  40-47:  ........  00000000
+  48-55:  ........  00000000
+  56-63:  ........  00000000
+  A = /a.txt
+  B = /c.txt
+  C = /e.txt
+fs:/$ blocks e.txt
+/e.txt: 146 bytes, chain 2 -> 3 -> 6 -> 7 -> 8 -> END
+  block  2: "The FAT links blocks 2 3 6 7 8 i"
+  block  3: "nto one chain. The file is store"
+  block  6: "d in pieces, but cat still follo"
+  block  7: "ws the chain and reads it back i"
+  block  8: "n the right order."
+fs:/$ cat e.txt
+The FAT links blocks 2 3 6 7 8 into one chain. The file is stored in pieces, but cat still follows the chain and reads it back in the right order.
+# append to a.txt: its chain jumps past everything else
+fs:/$ append a.txt more
+fs:/$ blocks a.txt
+/a.txt: 69 bytes, chain 0 -> 1 -> 9 -> END
+  block  0: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  block  1: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  block  9: "\nmore"
+fs:/$ diskmap
+disk: 10/64 blocks used ('.' = free)
+           blocks    bitmap
+   0- 7:  AACCBBCC  11111111
+   8-15:  CA......  11000000
+  16-23:  ........  00000000
+  24-31:  ........  00000000
+  32-39:  ........  00000000
+  40-47:  ........  00000000
+  48-55:  ........  00000000
+  56-63:  ........  00000000
+  A = /a.txt
+  B = /c.txt
+  C = /e.txt

@@ -72,7 +72,10 @@ static void print_help(void) {
         "  tree [path]            print the directory tree (DFS)\n"
         "inside the data structures\n"
         "  df                     disk and inode usage\n"
+        "  diskmap                which file owns each block, and the bitmap\n"
+        "  blocks <file>          a file's block chain (FAT) and block contents\n"
         "  btree [dir]            a directory's B-tree, level by level\n"
+        "  hashmap                the inode table's buckets\n"
         "other\n"
         "  help                   this list\n"
         "  exit                   quit\n");
@@ -172,9 +175,16 @@ int main(void) {
             else fs_tree(n == 0 ? "." : args[1]);
         } else if (strcmp(cmd, "df") == 0) {
             fs_df();
+        } else if (strcmp(cmd, "diskmap") == 0) {
+            fs_diskmap();
+        } else if (strcmp(cmd, "blocks") == 0) {
+            if (n != 1) usage("blocks <file>");
+            else fs_blocks(args[1]);
         } else if (strcmp(cmd, "btree") == 0) {
             if (n > 1) usage("btree [dir]");
             else fs_btree(n == 0 ? "." : args[1]);
+        } else if (strcmp(cmd, "hashmap") == 0) {
+            fs_hashmap();
         } else {
             printf("error: unknown command: %s (type 'help')\n", cmd);
         }
