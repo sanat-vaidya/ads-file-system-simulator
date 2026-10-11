@@ -1,0 +1,19 @@
+# fragmentation: a file's blocks do not need to be next to each other
+# each of these takes 2 blocks
+write a.txt aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+write b.txt bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+write c.txt cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+write d.txt dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+diskmap
+# delete b and d, leaving two holes
+rm b.txt d.txt
+diskmap
+# a 5-block file fills both holes and continues after c
+write e.txt The FAT links blocks 2 3 6 7 8 into one chain. The file is stored in pieces, but cat still follows the chain and reads it back in the right order.
+diskmap
+blocks e.txt
+cat e.txt
+# append to a.txt: its chain jumps past everything else
+append a.txt more
+blocks a.txt
+diskmap
