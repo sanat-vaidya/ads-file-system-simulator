@@ -379,6 +379,67 @@ void fs_find(const char *dir, const char *name) {
     printf("(visited %d inodes)\n", visited);
 }
 
+// Depth-first: print each child, and go into it right away if it is a directory.
+// One prefix buffer is shared by all levels: add 4 columns before going down,
+// cut them off again after.
+static void print_tree(int id, char *prefix, int *dirs, int *files) {
+    int kids[MAX_INODES];
+    int n = children_of(id, kids);
+    for (int i = 0; i < n; i++) {
+        Inode *c = table_find(kids[i]);
+        bool last = (i == n - 1);
+        printf("%s%s%s%s\n", prefix, last ? "└── " : "├── ", c->name, c->is_dir ? "/" : "");
+        if (c->is_dir) {
+            (*dirs)++;
+            int len = strlen(prefix);
+            strcat(prefix, last ? "    " : "│   ");
+            print_tree(kids[i], prefix, dirs, files);
+            prefix[len] = '\0';
+        } else {
+            (*files)++;
+        }
+    }
+}
+
+void fs_tree(const char *path) {
+    int id = resolve(path);
+    if (id == -1) {
+        error("no such directory", path);
+        return;
+    }
+    if (!table_find(id)->is_dir) {
+        error("not a directory", path);
+        return;
+    }
+    char p[PATH_SIZE];
+    path_of(id, p);
+    printf("%s\n", p);
+
+    char prefix[MAX_INODES * 8] = "";   // up to 6 bytes per level ("│" is 3 bytes)
+    int dirs = 0;
+    int files = 0;
+    print_tree(id, prefix, &dirs, &files);
+    printf("%d directories, %d files\n", dirs, files);
+}
+
+void fs_btree(const char *path) {
+    int id = resolve(path);
+    if (id == -1) {
+        error("no such directory", path);
+        return;
+    }
+    Inode *in = table_find(id);
+    if (!in->is_dir) {
+        error("not a directory", path);
+        return;
+    }
+    char p[PATH_SIZE];
+    path_of(id, p);
+    printf("B-tree of %s: %d entries, height %d, max %d keys per node\n",
+           p, btree_size(in->children), btree_height(in->children), MAX_KEYS);
+    btree_print(in->children);
+}
+
 // =====================================================================
 // storage commands
 // =====================================================================

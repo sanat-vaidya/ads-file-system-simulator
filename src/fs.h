@@ -26,6 +26,8 @@ void fs_pwd(void);
 void fs_mv(const char *src, const char *dst);
 void fs_search(const char *prefix);
 void fs_find(const char *dir, const char *name);
+void fs_tree(const char *path);
+void fs_btree(const char *path);
 
 // storage
 void fs_write(const char *path, const char *text);

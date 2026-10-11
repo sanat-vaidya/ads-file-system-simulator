@@ -69,8 +69,10 @@ static void print_help(void) {
         "search\n"
         "  search <prefix>        names starting with prefix, anywhere (trie)\n"
         "  find <dir> <name>      exact name under dir (BFS with a queue)\n"
+        "  tree [path]            print the directory tree (DFS)\n"
         "inside the data structures\n"
         "  df                     disk and inode usage\n"
+        "  btree [dir]            a directory's B-tree, level by level\n"
         "other\n"
         "  help                   this list\n"
         "  exit                   quit\n");
@@ -165,8 +167,14 @@ int main(void) {
         } else if (strcmp(cmd, "find") == 0) {
             if (n != 2) usage("find <dir> <name>");
             else fs_find(args[1], args[2]);
+        } else if (strcmp(cmd, "tree") == 0) {
+            if (n > 1) usage("tree [path]");
+            else fs_tree(n == 0 ? "." : args[1]);
         } else if (strcmp(cmd, "df") == 0) {
             fs_df();
+        } else if (strcmp(cmd, "btree") == 0) {
+            if (n > 1) usage("btree [dir]");
+            else fs_btree(n == 0 ? "." : args[1]);
         } else {
             printf("error: unknown command: %s (type 'help')\n", cmd);
         }

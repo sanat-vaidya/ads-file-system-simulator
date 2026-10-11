@@ -16,8 +16,22 @@ fs:/$ ls b
 g.txt
 # move and rename at once
 fs:/$ mv b/g.txt a/sub/h.txt
+fs:/$ tree
+/
+├── a/
+│   └── sub/
+│       └── h.txt
+└── b/
+3 directories, 1 files
 # moving a directory takes everything inside with it
 fs:/$ mv a/sub b
+fs:/$ tree
+/
+├── a/
+└── b/
+    └── sub/
+        └── h.txt
+3 directories, 1 files
 # the trie follows renames
 fs:/$ search g
 no matches
@@ -38,6 +52,13 @@ fs:/c/sub$ pwd
 fs:/c/sub$ cd /
 # moving to the same place does nothing
 fs:/$ mv c/sub c
+fs:/$ tree
+/
+├── a/
+└── c/
+    └── sub/
+        └── renamed.txt
+3 directories, 1 files
 # errors
 fs:/$ mv nothere x
 error: no such file or directory: nothere
@@ -54,3 +75,12 @@ fs:/$ mv c/sub/clash c/sub/renamed.txt
 error: already exists: c/sub/renamed.txt
 fs:/$ mv a
 usage: mv <src> <dst>
+fs:/$ tree
+/
+├── a/
+│   └── clash
+└── c/
+    └── sub/
+        ├── clash
+        └── renamed.txt
+3 directories, 3 files

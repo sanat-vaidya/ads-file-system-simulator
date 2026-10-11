@@ -1,0 +1,34 @@
+# each directory's entries live in a B-tree with at most 3 keys per node
+mkdir d
+btree d
+touch d/a d/b d/c
+btree d
+# 4th key: the root is full, so it splits and the tree grows taller
+touch d/d
+btree d
+touch d/e
+btree d
+# inserting f splits the full leaf [c | d | e] on the way down
+touch d/f d/g
+btree d
+touch d/h d/i d/j d/k d/l
+btree d
+# ls is an in-order walk of the B-tree, so it is always sorted
+touch d/0first d/Zed
+ls d
+# removing: borrow from a sibling or merge with one
+rm d/a
+btree d
+rm d/0first d/Zed d/b
+btree d
+rm d/c d/d d/e d/f
+btree d
+rm d/g d/h d/i d/j
+btree d
+rm d/k d/l
+btree d
+stat d
+btree d/../d
+btree nothere
+touch file
+btree file

@@ -12,6 +12,7 @@ rm empty
 # non-empty directory needs -r
 rm docs
 rm -r docs
+tree
 df
 search a
 # freed blocks are reused, lowest number first
