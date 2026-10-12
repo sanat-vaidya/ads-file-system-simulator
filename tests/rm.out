@@ -72,3 +72,16 @@ fs:/$ rm
 usage: rm [-r] <path>...
 fs:/$ rm -r
 usage: rm [-r] <path>...
+fs:/$ mkdir keep keep/inner
+fs:/$ cd keep/inner
+fs:/keep/inner$ rm /keep
+error: cannot remove the current directory or its parents: /keep
+fs:/keep/inner$ rm -r /keep
+error: cannot remove the current directory or its parents: /keep
+fs:/keep/inner$ rm .
+error: cannot remove the current directory or its parents: .
+fs:/keep/inner$ cd /
+fs:/$ rm -r keep
+fs:/$ ls
+new.txt
+y

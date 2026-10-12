@@ -29,3 +29,11 @@ rm /
 rm nothere
 rm
 rm -r
+mkdir keep keep/inner
+cd keep/inner
+rm /keep
+rm -r /keep
+rm .
+cd /
+rm -r keep
+ls
