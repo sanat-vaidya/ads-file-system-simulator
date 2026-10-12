@@ -151,6 +151,15 @@ static bool valid_name(const char *name) {
     return true;
 }
 
+// True if a is b, or a is one of b's parent directories.
+static bool is_ancestor(int a, int b) {
+    while (true) {
+        if (b == a) return true;
+        if (b == ROOT_ID) return false;
+        b = table_find(b)->parent_id;
+    }
+}
+
 // =====================================================================
 // helpers
 // =====================================================================
@@ -662,6 +671,10 @@ void fs_rm(const char *path, bool recursive) {
     }
     if (id == ROOT_ID) {
         error("cannot remove", "/");
+        return;
+    }
+    if (is_ancestor(id, cwd)) {
+        error("cannot remove the current directory or its parents", path);
         return;
     }
     Inode *in = table_find(id);
