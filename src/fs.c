@@ -328,6 +328,10 @@ void fs_mv(const char *src, const char *dst) {
         error("already exists", where);
         return;
     }
+    if (in->is_dir && is_ancestor(id, new_parent)) {
+        error("cannot move a directory into itself", src);
+        return;
+    }
 
     // only names move, the disk blocks stay where they are
     btree_remove(table_find(in->parent_id)->children, in->name);

@@ -35,6 +35,10 @@ tree
 # errors
 mv nothere x
 mv / x
+mv c c/sub
+mv c c/sub/deeper
+mv c c
+mv c/sub c/sub
 touch c/sub/clash a/clash
 mv c/sub/clash a
 mv c/sub/clash nothere/x

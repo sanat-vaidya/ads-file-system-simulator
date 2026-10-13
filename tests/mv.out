@@ -68,6 +68,14 @@ fs:/$ mv nothere x
 error: no such file or directory: nothere
 fs:/$ mv / x
 error: cannot move: /
+fs:/$ mv c c/sub
+error: cannot move a directory into itself: c
+fs:/$ mv c c/sub/deeper
+error: cannot move a directory into itself: c
+fs:/$ mv c c
+error: cannot move a directory into itself: c
+fs:/$ mv c/sub c/sub
+error: cannot move a directory into itself: c/sub
 fs:/$ touch c/sub/clash a/clash
 fs:/$ mv c/sub/clash a
 error: already exists: /a/clash
