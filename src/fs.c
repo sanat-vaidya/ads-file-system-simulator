@@ -462,6 +462,11 @@ void fs_write(const char *path, const char *text) {
     int needed = blocks_for(len);
     int id = resolve(path);
     if (id == -1) {
+        // new file: check for space before creating anything
+        if (needed > disk_free_count()) {
+            error("disk full", path);
+            return;
+        }
         id = create(path, false);
         if (id == -1) return;
     }
