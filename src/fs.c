@@ -488,7 +488,8 @@ void fs_write(const char *path, const char *text) {
     in->size = len;
 }
 
-// Adds text as a new line at the end of the file.
+// Adds text as a new line. Fills the rest of the last block first,
+// then links new blocks onto the end of the chain.
 void fs_append(const char *path, const char *text) {
     int id = resolve(path);
     if (id == -1) {
@@ -501,22 +502,27 @@ void fs_append(const char *path, const char *text) {
         return;
     }
 
-    // read the old contents, add the new line, write it all back
-    char content[DISK_BYTES + LINE_SIZE + 2];
-    disk_read_bytes(in->first_block, in->size, content);
-    if (in->size > 0) strcat(content, "\n");
-    strcat(content, text);
-    int len = strlen(content);
+    char add[LINE_SIZE + 1];
+    if (in->size > 0) {
+        strcpy(add, "\n");
+        strcat(add, text);
+    } else {
+        strcpy(add, text);
+    }
+    int len = strlen(add);
 
-    int needed = blocks_for(len);
-    if (needed > disk_free_count() + blocks_for(in->size)) {
+    int needed = blocks_for(in->size + len) - blocks_for(in->size);
+    if (needed > disk_free_count()) {
         error("disk full", path);
         return;
     }
-    disk_free_chain(in->first_block);
-    in->first_block = disk_allocate(needed);
-    disk_write_bytes(in->first_block, 0, content, len);
-    in->size = len;
+    if (needed > 0) {
+        int first = disk_allocate(needed);
+        if (in->first_block == FAT_END) in->first_block = first;
+        else disk_link(disk_last_block(in->first_block), first);
+    }
+    disk_write_bytes(in->first_block, in->size, add, len);
+    in->size += len;
 }
 
 void fs_cat(const char *path) {
