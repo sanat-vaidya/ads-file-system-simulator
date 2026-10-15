@@ -1,0 +1,128 @@
+# limits: disk full, inode limit, name rules
+# 64 blocks x 32 bytes = 2048 bytes
+fs:/$ write big1 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+fs:/$ write big2 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fs:/$ write big3 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+fs:/$ write big4 dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+fs:/$ write big5 eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+fs:/$ write big6 ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+fs:/$ df
+blocks: 60 used, 4 free, 64 total (32 bytes each)
+bytes:  1920 stored in 1920 bytes of blocks (0 unused in last blocks)
+inodes: 7 used, 121 free, 128 total
+# 5 blocks needed, only 4 free: error, and no file is created
+fs:/$ write big7 gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+error: disk full: big7
+fs:/$ ls
+big1
+big2
+big3
+big4
+big5
+big6
+# overwriting can reuse the file's own blocks: 10 old + 4 free = 14
+fs:/$ write big1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+fs:/$ df
+blocks: 64 used, 0 free, 64 total (32 bytes each)
+bytes:  2048 stored in 2048 bytes of blocks (0 unused in last blocks)
+inodes: 7 used, 121 free, 128 total
+fs:/$ stat big1
+path:    /big1
+type:    file
+inode:   1 (hash bucket 1)
+parent:  0 (/)
+size:    448 bytes, 14 blocks
+blocks:  0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 60 -> 61 -> 62 -> 63 -> END
+# disk is full: these fail and change nothing
+fs:/$ append big2 x
+error: disk full: big2
+fs:/$ stat big2
+path:    /big2
+type:    file
+inode:   2 (hash bucket 2)
+parent:  0 (/)
+size:    320 bytes, 10 blocks
+blocks:  10 -> 11 -> 12 -> 13 -> 14 -> 15 -> 16 -> 17 -> 18 -> 19 -> END
+fs:/$ write big3 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+error: disk full: big3
+fs:/$ stat big3
+path:    /big3
+type:    file
+inode:   3 (hash bucket 3)
+parent:  0 (/)
+size:    320 bytes, 10 blocks
+blocks:  20 -> 21 -> 22 -> 23 -> 24 -> 25 -> 26 -> 27 -> 28 -> 29 -> END
+# empty files need no blocks
+fs:/$ touch empty
+fs:/$ write empty hi
+error: disk full: empty
+fs:/$ stat empty
+path:    /empty
+type:    file
+inode:   7 (hash bucket 7)
+parent:  0 (/)
+size:    0 bytes, 0 blocks
+blocks:  (no blocks)
+fs:/$ rm big1 big2 big3 big4 big5 big6 empty
+fs:/$ df
+blocks: 0 used, 64 free, 64 total (32 bytes each)
+bytes:  0 stored in 0 bytes of blocks (0 unused in last blocks)
+inodes: 1 used, 127 free, 128 total
+# names: letters, digits, . _ - and at most 32 characters
+fs:/$ touch nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+fs:/$ touch nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+error: invalid name: nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+fs:/$ touch with.dots_and-dashes
+fs:/$ mkdir bad/slash
+error: no such directory: bad/slash
+fs:/$ mkdir bad$
+error: invalid name: bad$
+fs:/$ ls
+nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+with.dots_and-dashes
+fs:/$ rm nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn with.dots_and-dashes
+# inode limit: 128 including the root
+fs:/$ touch i001 i002 i003 i004 i005 i006 i007 i008 i009 i010 i011 i012 i013 i014 i015 i016 i017 i018 i019 i020
+fs:/$ touch i021 i022 i023 i024 i025 i026 i027 i028 i029 i030 i031 i032 i033 i034 i035 i036 i037 i038 i039 i040
+fs:/$ touch i041 i042 i043 i044 i045 i046 i047 i048 i049 i050 i051 i052 i053 i054 i055 i056 i057 i058 i059 i060
+fs:/$ touch i061 i062 i063 i064 i065 i066 i067 i068 i069 i070 i071 i072 i073 i074 i075 i076 i077 i078 i079 i080
+fs:/$ touch i081 i082 i083 i084 i085 i086 i087 i088 i089 i090 i091 i092 i093 i094 i095 i096 i097 i098 i099 i100
+fs:/$ touch i101 i102 i103 i104 i105 i106 i107 i108 i109 i110 i111 i112 i113 i114 i115 i116 i117 i118 i119 i120
+fs:/$ touch i121 i122 i123 i124 i125 i126 i127
+fs:/$ df
+blocks: 0 used, 64 free, 64 total (32 bytes each)
+bytes:  0 stored in 0 bytes of blocks (0 unused in last blocks)
+inodes: 128 used, 0 free, 128 total
+fs:/$ touch one-too-many
+error: no free inodes: one-too-many
+fs:/$ mkdir one-too-many
+error: no free inodes: one-too-many
+fs:/$ write one-too-many hi
+error: no free inodes: one-too-many
+fs:/$ rm i001
+fs:/$ touch now-it-fits
+fs:/$ df
+blocks: 0 used, 64 free, 64 total (32 bytes each)
+bytes:  0 stored in 0 bytes of blocks (0 unused in last blocks)
+inodes: 128 used, 0 free, 128 total
+fs:/$ search now
+/now-it-fits
+# unknown commands and bad usage
+fs:/$ format c:
+error: unknown command: format (type 'help')
+fs:/$ cat
+usage: cat <file>
+fs:/$ cat a b
+usage: cat <file>
+fs:/$ ls a b
+usage: ls [path]
+fs:/$ stat
+usage: stat <path>
+fs:/$ blocks
+usage: blocks <file>
+fs:/$ write
+usage: write <file> <text>
+fs:/$ touch
+usage: touch <path>...
+fs:/$ mkdir
+usage: mkdir <path>...
