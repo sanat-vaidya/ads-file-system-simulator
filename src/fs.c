@@ -609,13 +609,32 @@ void fs_diskmap(void) {
     int files[MAX_INODES];
     int num_files = collect_files(ROOT_ID, files, 0);
 
-    int shown[MAX_INODES];   // files that own blocks, in letter order
+    int shown[MAX_INODES];   // files that own blocks
+    char shown_letter[MAX_INODES];
     int num_shown = 0;
+    bool taken[NUM_LETTERS];
+    for (int k = 0; k < NUM_LETTERS; k++) taken[k] = false;
+
     for (int i = 0; i < num_files; i++) {
         Inode *in = table_find(files[i]);
         if (in->first_block == FAT_END) continue;
-        char letter = num_shown < NUM_LETTERS ? LETTERS[num_shown] : '*';
+
+        // The letter comes from the inode id (id 1 = A, id 2 = B, ...) so a file
+        // keeps its letter between maps. If it is taken, use the next free one.
+        int k = (in->id - 1) % NUM_LETTERS;
+        int tries = 0;
+        while (taken[k] && tries < NUM_LETTERS) {
+            k = (k + 1) % NUM_LETTERS;
+            tries++;
+        }
+        char letter = '*';
+        if (!taken[k]) {
+            taken[k] = true;
+            letter = LETTERS[k];
+        }
+
         shown[num_shown] = files[i];
+        shown_letter[num_shown] = letter;
         num_shown++;
         int chain[NUM_BLOCKS];
         int n = disk_chain(in->first_block, chain);
@@ -634,7 +653,7 @@ void fs_diskmap(void) {
     char p[PATH_SIZE];
     for (int i = 0; i < num_shown; i++) {
         path_of(shown[i], p);
-        printf("  %c = %s\n", i < NUM_LETTERS ? LETTERS[i] : '*', p);
+        printf("  %c = %s\n", shown_letter[i], p);
     }
 }
 

@@ -10,7 +10,7 @@ inodes: 7 used, 121 free, 128 total
 fs:/$ diskmap
 disk: 4/64 blocks used ('.' = free)
            blocks    bitmap
-   0- 7:  AABC....  11110000
+   0- 7:  DDEF....  11110000
    8-15:  ........  00000000
   16-23:  ........  00000000
   24-31:  ........  00000000
@@ -18,9 +18,9 @@ disk: 4/64 blocks used ('.' = free)
   40-47:  ........  00000000
   48-55:  ........  00000000
   56-63:  ........  00000000
-  A = /docs/a.txt
-  B = /docs/old/b.txt
-  C = /top.txt
+  D = /docs/a.txt
+  E = /docs/old/b.txt
+  F = /top.txt
 # remove one file
 fs:/$ rm top.txt
 fs:/$ ls
