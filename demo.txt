@@ -1,0 +1,74 @@
+# ================================================================
+#  File System Simulator - demo
+#  run with:  ./fs < demo.txt
+# ================================================================
+
+# ---- 1. The directory tree, and paths resolved with a stack ----
+mkdir home home/sanat home/rohan etc
+mkdir home/sanat/projects
+touch etc/config home/rohan/todo.txt
+cd home/sanat/projects
+pwd
+# the stack turns ../../rohan into /home/rohan
+ls ../../rohan
+cd ../../..
+tree
+
+# ---- 2. Each directory is a B-tree (max 3 keys per node) ----
+mkdir music
+touch music/a.mp3 music/b.mp3 music/c.mp3
+btree music
+# a 4th entry: the full root splits, the tree grows a level
+touch music/d.mp3
+btree music
+touch music/e.mp3 music/f.mp3 music/g.mp3 music/h.mp3 music/i.mp3
+btree music
+# ls is an in-order walk of the B-tree, so it is always sorted
+ls music
+# removing borrows from or merges with a sibling
+rm music/a.mp3 music/b.mp3 music/c.mp3
+btree music
+
+# ---- 3. Inode table: hash map, bucket = id % 31 ----
+stat home/rohan/todo.txt
+hashmap
+# (ids above 30 start sharing buckets: see tests/hashmap.in)
+
+# ---- 4. The disk: bitmap for free space, FAT for each file's chain ----
+write a.txt aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+write b.txt bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+write c.txt cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+diskmap
+# delete b.txt: its 2 blocks become a hole
+rm b.txt
+diskmap
+# a 3-block file fills the hole, then continues after c.txt
+write d.txt This file needs three blocks: two fill the hole left by b.txt, the third goes after c.txt.
+diskmap
+blocks d.txt
+cat d.txt
+# append fills the last block, then links a new one onto the chain
+append d.txt One more line.
+blocks d.txt
+df
+
+# ---- 5. search (trie) vs find (BFS with a queue) ----
+touch home/sanat/todo.txt home/sanat/projects/todo.txt
+# trie: every name starting with "to", anywhere, without scanning
+search to
+# BFS: exact name under one directory, nearest first
+find / todo.txt
+find home/sanat todo.txt
+
+# ---- 6. mv only changes names, not disk blocks ----
+mv d.txt home/rohan/notes.txt
+blocks home/rohan/notes.txt
+mv home/sanat/projects home/rohan
+tree home
+# a directory cannot go inside itself
+mv home home/rohan
+
+# ---- 7. rm -r: depth-first delete, blocks go back to the bitmap ----
+rm -r home
+tree
+df

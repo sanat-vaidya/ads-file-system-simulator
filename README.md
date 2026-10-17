@@ -9,6 +9,7 @@ only the C standard library is used.
 ```
 make            # builds ./fs
 ./fs            # interactive shell
+./fs < demo.txt # guided demo of every data structure
 make test       # B-tree stress test + all shell tests
 ```
 
