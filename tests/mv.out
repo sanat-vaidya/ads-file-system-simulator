@@ -22,7 +22,7 @@ fs:/$ tree
 │   └── sub/
 │       └── h.txt
 └── b/
-3 directories, 1 files
+3 directories, 1 file
 # disk blocks do not move, only names change
 fs:/$ blocks a/sub/h.txt
 /a/sub/h.txt: 9 bytes, chain 0 -> END
@@ -35,7 +35,7 @@ fs:/$ tree
 └── b/
     └── sub/
         └── h.txt
-3 directories, 1 files
+3 directories, 1 file
 # the trie follows renames
 fs:/$ search g
 no matches
@@ -62,7 +62,7 @@ fs:/$ tree
 └── c/
     └── sub/
         └── renamed.txt
-3 directories, 1 files
+3 directories, 1 file
 # errors
 fs:/$ mv nothere x
 error: no such file or directory: nothere

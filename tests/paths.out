@@ -55,7 +55,7 @@ fs:/$ tree docs
 ├── notes/
 ├── old/
 └── readme.txt
-2 directories, 1 files
+2 directories, 1 file
 # errors
 fs:/$ cd nothere
 error: no such directory: nothere

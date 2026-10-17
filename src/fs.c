@@ -432,7 +432,8 @@ void fs_tree(const char *path) {
     int dirs = 0;
     int files = 0;
     print_tree(id, prefix, &dirs, &files);
-    printf("%d directories, %d files\n", dirs, files);
+    printf("%d %s, %d %s\n", dirs, dirs == 1 ? "directory" : "directories",
+           files, files == 1 ? "file" : "files");
 }
 
 void fs_btree(const char *path) {
