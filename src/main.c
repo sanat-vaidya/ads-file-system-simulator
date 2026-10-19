@@ -102,8 +102,16 @@ int main(void) {
             break;
         }
 
-        // drop the newline, trailing spaces and Windows line endings
+        // the line did not fit: skip the rest of it
         int len = strlen(line);
+        if (len == LINE_SIZE - 1 && line[len - 1] != '\n' && !feof(stdin)) {
+            int c = getchar();
+            while (c != '\n' && c != EOF) c = getchar();
+            printf("error: line too long (max %d characters)\n", LINE_SIZE - 2);
+            continue;
+        }
+
+        // drop the newline, trailing spaces and Windows line endings
         while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r' || is_space(line[len - 1]))) {
             len--;
             line[len] = '\0';

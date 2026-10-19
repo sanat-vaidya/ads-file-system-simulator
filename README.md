@@ -80,6 +80,7 @@ Depth-first recursion is used by `tree`, `rm -r` and `diskmap`.
 
 - 64 blocks of 32 bytes (2 KB), 128 inodes including `/`.
 - Names: letters, digits, `.` `_` `-`, at most 32 characters, case-sensitive.
+- Input lines: at most 4094 characters.
 - `write` and `append` check for space first. If the disk is full nothing changes.
 - New blocks are taken lowest number first, so deleting files leaves holes that
   later files fill. That is fragmentation, and the FAT handles it.
